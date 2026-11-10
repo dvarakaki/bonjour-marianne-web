@@ -1,0 +1,51 @@
+<!doctype html>
+<!--
+  Página só de desenvolvimento: arte da prévia do link (public/og.jpg).
+  Para refazer: npm run dev → abra http://localhost:8642/scripts/og.html numa janela de 800×420
+  e salve um print como public/og.jpg.
+-->
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=800" />
+    <title>Prévia do convite</title>
+    <script type="module">
+      import '@fontsource/great-vibes/400.css'
+      import '@fontsource/cormorant-garamond/500.css'
+      import '@fontsource/cormorant-garamond/500-italic.css'
+      import '@fontsource-variable/jost'
+      import '/src/index.css'
+    </script>
+  </head>
+  <body class="m-0 overflow-hidden">
+    <div class="relative flex h-[420px] w-[800px] items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_45%,#fffaf8_0%,#fbe8ec_55%,#f1c9d2_100%)]">
+      <div class="bg-grain absolute inset-0"></div>
+      <div class="absolute -top-24 -left-24 size-80 rounded-full bg-[#f8d5dc]/70 blur-3xl"></div>
+      <div class="absolute -right-24 -bottom-28 size-80 rounded-full bg-[#fde3d5]/70 blur-3xl"></div>
+
+      <div class="relative mt-6 w-[540px] rounded-[28px] bg-card px-10 pt-12 pb-9 text-center shadow-card">
+        <div class="pointer-events-none absolute inset-3 rounded-[20px] border border-gold/45"></div>
+        <div class="pointer-events-none absolute inset-[17px] rounded-[16px] border border-gold/20"></div>
+        <svg class="absolute -top-9 left-1/2 w-28 -translate-x-1/2 drop-shadow-[0_8px_10px_rgb(158_66_89/0.25)]" viewBox="0 0 140 92" aria-hidden="true">
+          <defs>
+            <linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8d3da" /><stop offset=".55" stop-color="#e79aac" /><stop offset="1" stop-color="#c86a81" /></linearGradient>
+            <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d97a90" /><stop offset="1" stop-color="#a9465e" /></linearGradient>
+          </defs>
+          <path d="M64 46C58 58 50 70 41 86L50 82L54 90C60 75 66 60 69 48Z" fill="url(#b)" />
+          <path d="M76 46C82 58 90 70 99 86L90 82L86 90C80 75 74 60 71 48Z" fill="url(#b)" />
+          <path d="M70 42C56 22 30 7 16 15C3 23 8 47 25 52C39 57 56 52 70 42Z" fill="url(#a)" />
+          <path d="M70 42C84 22 110 7 124 15C137 23 132 47 115 52C101 57 84 52 70 42Z" fill="url(#a)" />
+          <path d="M24 21C35 16 49 23 59 32" stroke="#fff" stroke-opacity=".65" stroke-width="2.2" fill="none" stroke-linecap="round" />
+          <path d="M116 21C105 16 91 23 81 32" stroke="#fff" stroke-opacity=".65" stroke-width="2.2" fill="none" stroke-linecap="round" />
+          <rect x="61" y="33" width="18" height="20" rx="7.5" fill="url(#b)" />
+        </svg>
+
+        <p class="text-foil text-[13px] font-medium tracking-[0.42em] uppercase">Chá de bebê</p>
+        <p class="mt-2 font-serif text-[30px] leading-none text-muted-foreground italic">Bonjour,</p>
+        <p class="-mx-4 bg-gradient-to-b from-[#c8657d] to-[#933a52] bg-clip-text px-4 pb-1 font-script text-[96px] leading-[1.1] text-transparent">Marianne</p>
+        <p class="mt-1 text-[13px] font-medium tracking-[0.42em] text-rose-ink uppercase">13 · Dezembro · 2026</p>
+        <p class="mt-3 font-serif text-[20px] text-foreground italic">Você recebeu um convite especial</p>
+      </div>
+    </div>
+  </body>
+</html>

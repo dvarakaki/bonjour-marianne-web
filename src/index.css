@@ -1,0 +1,155 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* página de desenvolvimento da imagem de prévia (scripts/og.html) */
+@source "../scripts/og.html";
+
+@custom-variant dark (&:is(.dark *));
+
+/* =====================================================================
+   Design tokens — Bonjour, Marianne
+   Papelaria parisiense: papel creme, rosa antigo, dourado.
+   ===================================================================== */
+:root {
+  color-scheme: light;
+  --radius: 1rem;
+
+  --background: #fff8f5;
+  --foreground: #4a2230;
+  --card: #fffdfb;
+  --card-foreground: #4a2230;
+  --popover: #fffdfb;
+  --popover-foreground: #4a2230;
+  --primary: #b44d64;
+  --primary-foreground: #ffffff;
+  --secondary: #fbe7eb;
+  --secondary-foreground: #7a3247;
+  --muted: #f9eef0;
+  --muted-foreground: #7d5f68;
+  --accent: #fbe7eb;
+  --accent-foreground: #7a3247;
+  --destructive: #b3261e;
+  --border: #f0dde1;
+  --input: #e9d0d6;
+  --ring: #d98a9b;
+
+  /* textura de papel (ruído SVG) */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.13 0 0 0 0 0.19 0 0 0 0.075 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@theme {
+  --color-blush-50: #fef5f6;
+  --color-blush-100: #fbe7eb;
+  --color-blush-200: #f6d0d8;
+  --color-blush-300: #efb0be;
+  --color-blush-400: #e08a9e;
+  --color-rose-ink: #9e4259;
+  --color-plum: #4a2230;
+  --color-gold: #b8925a;
+  --color-gold-ink: #8a6a35;
+  --color-gold-soft: #f6ecd9;
+  --color-success: #4f7d5c;
+  --color-success-soft: #e6f1e8;
+
+  --font-sans: "Jost Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-script: "Great Vibes", "Brush Script MT", cursive;
+
+  --shadow-soft: 0 1px 2px rgb(74 34 48 / 0.04), 0 10px 24px -14px rgb(158 66 89 / 0.22);
+  --shadow-card: 0 2px 6px rgb(74 34 48 / 0.04), 0 30px 60px -30px rgb(158 66 89 / 0.38);
+  --shadow-float: 0 20px 40px -16px rgb(158 66 89 / 0.55);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Texto com efeito de folha de ouro */
+@utility text-foil {
+  background-image: linear-gradient(100deg, #94693a 0%, #c49a5c 18%, #ecd8a8 34%, #bf9555 50%, #94693a 66%, #d6b67e 82%, #9c7340 100%);
+  background-size: 220% 100%;
+  background-position: 0% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Forro do envelope: bolinhas sobre rosa */
+@utility bg-liner {
+  background-color: #eab3bf;
+  background-image:
+    radial-gradient(rgb(255 255 255 / 0.6) 1.1px, transparent 1.7px),
+    linear-gradient(160deg, #f4ccd4, #e2a3b1);
+  background-size: 11px 11px, 100% 100%;
+}
+
+@utility bg-grain {
+  background-image: var(--grain);
+}
+
+@keyframes foil-sheen {
+  from { background-position: 100% 0; }
+  to { background-position: 0% 0; }
+}
+
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-foil { animation: foil-sheen 3.2s var(--ease-out-expo) 0.8s both; }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 1rem;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply min-h-dvh bg-background font-sans text-foreground antialiased;
+    overflow-x: hidden;
+  }
+  h1, h2, h3 { text-wrap: balance; }
+  .font-serif { font-variant-numeric: lining-nums; }
+  p { text-wrap: pretty; }
+  ::selection { background: var(--color-blush-200); color: var(--color-plum); }
+  input[type="search"]::-webkit-search-cancel-button { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #fbeef1 0%, #fffaf9 50%, #fbeef1 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
