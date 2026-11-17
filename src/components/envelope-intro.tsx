@@ -50,7 +50,7 @@ export function EnvelopeIntro({ onAberto }: { onAberto: () => void }) {
       className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-10 overflow-hidden px-6 py-10"
       exit={{ opacity: 0, scale: 1.05, transition: { duration: 0.75, ease: [0.4, 0, 0.2, 1] } }}
     >
-      <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,#fffaf8_0%,#fbe8ec_55%,#f3cfd7_100%)]" />
+      <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,#fffbf6_0%,#f7e6dc_55%,#efd2c6_100%)]" />
       <div aria-hidden="true" className="bg-grain absolute inset-0" />
 
       <div data-texto className="relative text-center">
@@ -72,10 +72,10 @@ export function EnvelopeIntro({ onAberto }: { onAberto: () => void }) {
           onClick={abrir}
           disabled={abrindo}
           aria-label="Abrir o convite"
-          className="group relative block w-[min(84vw,400px)] cursor-pointer rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-8 focus-visible:ring-offset-[#fbe8ec]"
+          className="group relative block w-[min(84vw,400px)] cursor-pointer rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-primary/40 focus-visible:ring-offset-8 focus-visible:ring-offset-[#f7e6dc]"
         >
           <div data-envelope className="relative aspect-[1.5] w-full" style={{ perspective: 1200 }}>
-            <div aria-hidden="true" className="absolute -bottom-7 left-1/2 h-7 w-[82%] -translate-x-1/2 rounded-[50%] bg-[#9e4259]/25 blur-xl" />
+            <div aria-hidden="true" className="absolute -bottom-7 left-1/2 h-7 w-[82%] -translate-x-1/2 rounded-[50%] bg-[#96484f]/25 blur-xl" />
 
             {/* forro interno */}
             <div className="bg-liner absolute inset-0 rounded-[10px]" />

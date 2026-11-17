@@ -1,9 +1,7 @@
 import { useId } from 'react'
-import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 
 const useSvgId = () => useId().replace(/[^a-zA-Z0-9_-]/g, '')
-const EASE_DRAW = [0.65, 0, 0.35, 1] as const
 
 /* ------------------------------------------------------------------ */
 /* Laço                                                                */
@@ -40,62 +38,6 @@ export function Laco({ className }: { className?: string }) {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Torre Eiffel em traço, desenhada da base ao topo                    */
-/* ------------------------------------------------------------------ */
-const TORRE = [
-  'M6 236H44', 'M76 236H114',
-  'M12 236C24 210 33 184 36 160', 'M108 236C96 210 87 184 84 160',
-  'M42 236C44 200 76 200 78 236',
-  'M29 186H91',
-  'M30 152H90V160H30Z',
-  'M38 152C41 136 44 122 47 108', 'M82 152C79 136 76 122 73 108',
-  'M40.9 138H79.1', 'M44.1 122H75.9',
-  'M40.9 138L75.9 122', 'M79.1 138L44.1 122',
-  'M42 102H78V108H42Z',
-  'M50 102C52 76 54 52 56.5 30', 'M70 102C68 76 66 52 63.5 30',
-  'M51.6 84H68.4', 'M53.3 66H66.7', 'M54.9 48H65.1',
-  'M50.4 100L68.4 84M69.6 100L51.6 84',
-  'M51.6 84L66.7 66M68.4 84L53.3 66',
-  'M53.3 66L65.1 48M66.7 66L54.9 48',
-  'M56 30H64V22H56Z', 'M58 22L60 14L62 22', 'M60 14V4',
-]
-
-export function TorreEiffel({
-  className,
-  desenhar = true,
-  atraso = 0,
-}: {
-  className?: string
-  desenhar?: boolean
-  atraso?: number
-}) {
-  return (
-    <svg
-      viewBox="0 0 120 240"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.4}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      {TORRE.map((d, i) => (
-        <motion.path
-          key={d}
-          d={d}
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={desenhar ? { pathLength: 1, opacity: 1 } : { pathLength: 0, opacity: 0 }}
-          transition={{
-            pathLength: { duration: 1.1, delay: atraso + i * 0.045, ease: EASE_DRAW },
-            opacity: { duration: 0.15, delay: atraso + i * 0.045 },
-          }}
-        />
-      ))}
-    </svg>
-  )
-}
 
 /* ------------------------------------------------------------------ */
 /* Ramo floral                                                         */
@@ -133,7 +75,7 @@ export function Ramo({ className }: { className?: string }) {
       {FOLHAS.map(([x, y, a, cor]) => (
         <path key={`${x}-${y}`} d={FOLHA} fill={cor} transform={`translate(${x} ${y}) rotate(${a})`} />
       ))}
-      <ellipse cx="81" cy="42" rx="3" ry="2.2" fill="#f6d0d8" transform="rotate(-20 81 42)" />
+      <ellipse cx="81" cy="42" rx="3" ry="2.2" fill="#f2cbc7" transform="rotate(-20 81 42)" />
       <Flor x={11} y={14} />
       <Flor x={42} y={27.5} r={2.3} />
     </svg>
@@ -199,7 +141,7 @@ export function Lacre({ inicial, className }: { inicial: string; className?: str
       <defs>
         <radialGradient id={`${id}c`} cx=".36" cy=".3" r=".85">
           <stop offset="0" stopColor="#dc8b9d" />
-          <stop offset=".5" stopColor="#b44d64" />
+          <stop offset=".5" stopColor="#b0585f" />
           <stop offset="1" stopColor="#87354b" />
         </radialGradient>
       </defs>

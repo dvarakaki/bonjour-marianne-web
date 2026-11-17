@@ -98,7 +98,7 @@ export function SecaoConfirmacao({ ref }: { ref?: Ref<HTMLElement> }) {
             ref={cartao}
             className="relative isolate scroll-mt-6 overflow-hidden rounded-[32px] border border-border/70 bg-card shadow-card"
           >
-            <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-56 bg-[radial-gradient(70%_100%_at_50%_0%,#fdecef_0%,transparent_100%)]" />
+            <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-56 bg-[radial-gradient(70%_100%_at_50%_0%,#fbeae2_0%,transparent_100%)]" />
             <div aria-hidden="true" className="pointer-events-none absolute inset-2.5 rounded-[24px] border border-gold/30" />
             <AnimatePresence mode="wait" initial={false}>
               {editando || !minha ? (
@@ -161,7 +161,7 @@ export function SecaoConfirmacao({ ref }: { ref?: Ref<HTMLElement> }) {
         {MODO_DEMO && (
           <p className="mx-auto mt-6 max-w-md rounded-2xl bg-gold-soft px-4 py-3 text-center text-xs leading-relaxed text-gold-ink">
             Modo demonstração: as respostas ficam salvas só neste navegador. Para receber as confirmações,
-            configure <code className="font-semibold">appsScriptUrl</code> em <code className="font-semibold">src/config.ts</code>.
+            configure <code className="font-semibold">firebase</code> em <code className="font-semibold">src/config.ts</code>.
           </p>
         )}
       </div>
@@ -233,6 +233,7 @@ function Formulario({
     setErroEnvio(null)
     const c: Confirmacao = {
       id: anterior?.id ?? novoId(),
+      publico: anterior?.publico ?? novoId(),
       nome: nome.trim(),
       sobrenome: sobrenome.trim(),
       telefone: telefone.trim(),
@@ -535,7 +536,7 @@ function Formulario({
 
 const estiloCampo = (extra?: string) =>
   cn(
-    'h-12 rounded-2xl border-border bg-card px-4 text-base shadow-none placeholder:text-[#b09aa0] focus-visible:border-blush-400 focus-visible:ring-blush-200/70 md:text-base',
+    'h-12 rounded-2xl border-border bg-card px-4 text-base shadow-none placeholder:text-[#b3a196] focus-visible:border-blush-400 focus-visible:ring-blush-200/70 md:text-base',
     'aria-invalid:border-destructive/60 aria-invalid:ring-destructive/15',
     extra,
   )

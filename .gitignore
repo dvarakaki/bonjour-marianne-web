@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# senha do painel (local, nunca no Git)
+.senha-painel.txt
+.firebase/

@@ -44,7 +44,7 @@ export async function soltarConfete(intensidade: 'grande' | 'pequena' = 'grande'
   const { default: confetti } = await import('canvas-confetti')
   const coracao = confetti.shapeFromPath({ path: CORACAO })
   const base = {
-    colors: ['#e08a9e', '#efb0be', '#b44d64', '#d9b77a', '#f6d0d8'],
+    colors: ['#d48589', '#e6aaa8', '#b0585f', '#d9b77a', '#f2cbc7', '#a9b99a'],
     zIndex: 200,
     disableForReducedMotion: true,
   }

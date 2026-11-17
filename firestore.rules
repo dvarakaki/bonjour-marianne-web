@@ -1,0 +1,72 @@
+rules_version = '2';
+
+// Regras do banco do chá de bebê.
+//  - Público (qualquer visitante lê): presencas e reservas — só números, sem dados pessoais.
+//  - Privado (só o painel lê): confirmacoes e reservasNomes — nome, telefone, e-mail, recado.
+// Convidados só podem gravar no formato esperado; ninguém apaga, exceto o painel.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function admin() {
+      return request.auth != null && request.auth.token.email == 'painel@cha-da-marianne.app';
+    }
+    function d() { return request.resource.data; }
+    function chaves(ks) { return d().keys().hasOnly(ks) && d().keys().hasAll(ks); }
+    function texto(v, min, max) { return v is string && v.size() >= min && v.size() <= max; }
+    function agora(v) { return v == request.time; }
+    function idValido(id) { return id.size() >= 8 && id.size() <= 40; }
+
+    // Resumo público de cada resposta (alimenta o "X pessoas já confirmaram")
+    match /presencas/{id} {
+      allow read: if true;
+      allow create, update: if idValido(id)
+        && chaves(['status', 'pessoas', 'atualizadoEm'])
+        && d().status in ['sim', 'nao']
+        && d().pessoas is int && d().pessoas >= 0 && d().pessoas <= 16
+        && agora(d().atualizadoEm);
+      allow delete: if admin();
+    }
+
+    // Dados completos da resposta. O id é diferente do id público (o convidado guarda os dois),
+    // então quem lê a lista pública não consegue sobrescrever estes dados.
+    match /confirmacoes/{id} {
+      allow read, delete: if admin();
+      allow create, update: if idValido(id)
+        && chaves(['publico', 'nome', 'sobrenome', 'telefone', 'email', 'status', 'dependentes', 'recado', 'atualizadoEm'])
+        && texto(d().publico, 8, 40)
+        && existsAfter(/databases/$(database)/documents/presencas/$(d().publico))
+        && texto(d().nome, 1, 80)
+        && texto(d().sobrenome, 1, 80)
+        && texto(d().telefone, 8, 30)
+        && texto(d().email, 0, 120)
+        && d().status in ['sim', 'nao']
+        && d().dependentes is list && d().dependentes.size() <= 15
+        && texto(d().recado, 0, 300)
+        && agora(d().atualizadoEm);
+    }
+
+    // Reserva pública: só item e quantidade (para o "Faltam X de Y")
+    match /reservas/{id} {
+      allow read: if true;
+      allow create: if idValido(id)
+        && chaves(['itemId', 'qtd', 'criadoEm'])
+        && texto(d().itemId, 1, 80)
+        && d().qtd is int && d().qtd >= 1 && d().qtd <= 50
+        && agora(d().criadoEm);
+      allow delete: if admin();
+    }
+
+    // Quem reservou (privado), sempre gravado junto com a reserva pública de mesmo id
+    match /reservasNomes/{id} {
+      allow read, delete: if admin();
+      allow create: if idValido(id)
+        && chaves(['itemId', 'item', 'qtd', 'nome', 'criadoEm'])
+        && existsAfter(/databases/$(database)/documents/reservas/$(id))
+        && texto(d().itemId, 1, 80)
+        && texto(d().item, 1, 200)
+        && d().qtd is int && d().qtd >= 1 && d().qtd <= 50
+        && texto(d().nome, 1, 120)
+        && agora(d().criadoEm);
+    }
+  }
+}

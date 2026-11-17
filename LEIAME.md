@@ -1,11 +1,11 @@
-# Bonjour, Marianne — convite e confirmação de presença
+# Chá de Bebê da Marianne — convite, confirmação e lista de presentes
 
-Site do chá de bebê: o convidado abre um envelope animado, vê o convite (com contagem
+Site do chá de bebê (tema “Jardim Encantado”, com os ursinhos e as artes do convite): o convidado abre um envelope animado, vê o convite (com contagem
 regressiva e mapa), confirma a presença preenchendo nome, sobrenome, telefone, e-mail e
 dependentes, e pode reservar um item da lista de presentes para ninguém repetir.
 
 **Stack:** Vite + React + TypeScript + Tailwind CSS v4 + shadcn/ui + Motion.
-As respostas vão para uma **Planilha Google** (grátis, via Apps Script).
+As respostas e reservas vão para um banco **Firebase (Firestore)**, no plano gratuito.
 
 ---
 
@@ -32,38 +32,39 @@ Tudo fica em **`src/config.ts`**:
 | `whatsapp` | Seu WhatsApp, para dúvidas dos convidados |
 
 A **lista de presentes** fica em **`src/data/presentes.ts`** (importada do site antigo):
-fraldas por tamanho e os itens do enxoval com categoria, quantidade (`qtd: 0` = livre) e link da loja.
+fraldas por tamanho e os itens do enxoval com categoria, quantidade (`qtd: 0` = livre), link da loja e
+preço (`preco`, coletado nas lojas em nov/2026; `aprox: true` = valor estimado, mostrado com “≈”).
+Os filtros por faixa de preço e a ordenação usam esse valor.
 Não mude o `id` de um item depois que o site estiver no ar — as reservas são guardadas por ele.
 
-## 3. Receber as confirmações e reservas (Google Planilhas)
+## 3. Banco de dados (Firebase)
 
-Sem esta etapa o site funciona em **modo demonstração** (respostas e reservas ficam só no navegador de quem respondeu).
+As confirmações e as reservas ficam no **Firestore**, no projeto Firebase **`bonjour-marianne-cha`**
+(plano gratuito Spark, servidor em São Paulo). A configuração pública está em `firebase` no `src/config.ts`.
 
-1. Crie uma planilha em <https://sheets.new>.
-2. **Extensões → Apps Script**. Apague o conteúdo, cole o arquivo `apps-script/Codigo.gs` e salve.
-3. **Implantar → Nova implantação → App da Web**
-   - Executar como: **Eu**
-   - Quem pode acessar: **Qualquer pessoa**
-4. Autorize e copie a **URL do app da Web** (termina em `/exec`).
-5. Cole em `appsScriptUrl` no `src/config.ts`.
-6. Defina a senha do painel: **Configurações do projeto (⚙️) → Propriedades do script →
-   Adicionar** `SENHA_PAINEL` = a senha que quiser.
+| Coleção | Quem lê | O que guarda |
+| --- | --- | --- |
+| `presencas` | todos | só status e nº de pessoas (alimenta "X pessoas já confirmaram") |
+| `reservas` | todos | item e quantidade (alimenta "Faltam X de Y") |
+| `confirmacoes` | só o painel | nome, sobrenome, telefone, e-mail, dependentes, recado |
+| `reservasNomes` | só o painel | quem vai dar cada presente |
 
-A planilha ganha duas abas:
+As regras de segurança estão em **`firestore.rules`**. Mudou alguma coisa nelas? Publique com:
 
-- **Confirmações** — nome, sobrenome, telefone, e-mail, resposta, dependentes, total de pessoas, recado e data.
-  Se a pessoa editar a resposta no mesmo aparelho, a linha é atualizada (não duplica).
-- **Presentes** — item, quantidade, quem vai dar e quando. Para cancelar uma reserva, apague a linha.
+```bash
+firebase deploy --only firestore
+```
 
-O site público recebe **só números** (pessoas confirmadas e quantos de cada presente já foram reservados).
-Nomes, telefones e e-mails ficam na planilha e no painel, que pede a senha.
+O **painel** (`seu-site/#painel`) entra com a conta `painel@cha-da-marianne.app`; a senha está no arquivo
+**`.senha-painel.txt`** (fica só no seu computador, fora do Git). Ali dá para ver tudo, apagar respostas de
+teste, cancelar reservas e baixar um CSV.
 
-> Mudou o `Codigo.gs` depois? **Implantar → Gerenciar implantações → Editar → Nova versão** (mantém a mesma URL).
+Para testar sem banco, troque `firebase` por `null` no `src/config.ts` (modo demonstração: tudo fica no navegador).
 
 ## 4. Enviar os convites e acompanhar
 
 - **Link do convite:** é um só para todos — cada pessoa preenche os próprios dados.
-- **Painel dos anfitriões:** abra `seu-site/#painel` e entre com a `SENHA_PAINEL`. Ali você vê
+- **Painel dos anfitriões:** abra `seu-site/#painel` e entre com a senha do `.senha-painel.txt`. Ali você vê
   pessoas confirmadas (com dependentes), quem não vai, contatos (WhatsApp/e-mail com um toque),
   recados, presentes reservados e baixa tudo em CSV.
 - Dicas: `seu-site/#confirmar` pula o envelope e vai direto para o formulário;
@@ -99,11 +100,12 @@ src/
     gifts-section.tsx       lista de presentes com categorias, busca e reserva
     modal.tsx               janela (desktop) / gaveta (celular)
     host-panel.tsx          painel dos anfitriões (com senha)
-    ornaments.tsx           ilustrações SVG (laço, Torre Eiffel, ramos, lacre)
+    ornaments.tsx           ilustrações SVG (laço, ramos, lacre)
+    jardim.tsx              artes do jardim (guirlanda, ursinhos, borboletas)
     ui/                     componentes shadcn/ui
   data/presentes.ts         ← lista de presentes
-  lib/                      textos/telefone, datas/agenda, armazenamento
-apps-script/Codigo.gs       backend da planilha
+  lib/                      textos/telefone, datas/agenda, banco (store.ts, firebase.ts)
+firestore.rules             regras de segurança do banco (Firebase)
 ```
 
 Acessibilidade: respeita "reduzir movimento" do sistema, foco visível, alvos de toque ≥ 44px,

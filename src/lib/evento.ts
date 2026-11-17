@@ -71,7 +71,7 @@ export function baixarIcs() {
   const ics = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Bonjour Marianne//Convite//PT-BR',
+    'PRODID:-//Cha da Marianne//Convite//PT-BR',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',

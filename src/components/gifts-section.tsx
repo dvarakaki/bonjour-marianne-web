@@ -1,6 +1,6 @@
 import { useDeferredValue, useMemo, useRef, useState, type FormEvent } from 'react'
 import { motion } from 'motion/react'
-import { ArrowRight, Baby, Check, ExternalLink, Gift, Heart, LoaderCircle, Minus, Plus, Search, SearchX, X, type LucideIcon } from 'lucide-react'
+import { ArrowDownUp, ArrowRight, Baby, Check, ExternalLink, Gift, Heart, LoaderCircle, Minus, Plus, Search, SearchX, Wallet, X, type LucideIcon } from 'lucide-react'
 import { CONFIG } from '@/config'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,7 +23,41 @@ type Item = {
   Icone: LucideIcon
   tom: (typeof CATEGORIA_VISUAL)[Categoria]['tom']
   link?: string
+  preco: number
+  aprox?: boolean
   unidade: [string, string]
+}
+
+/* ---------------- preços ---------------- */
+type FaixaId = 'todas' | 'ate50' | '50a100' | '100a200' | 'mais200'
+const FAIXAS: { id: FaixaId; rotulo: string; min: number; max: number }[] = [
+  { id: 'todas', rotulo: 'Qualquer valor', min: 0, max: Infinity },
+  { id: 'ate50', rotulo: 'Até R$ 50', min: 0, max: 50 },
+  { id: '50a100', rotulo: 'R$ 50 a 100', min: 50.01, max: 100 },
+  { id: '100a200', rotulo: 'R$ 100 a 200', min: 100.01, max: 200 },
+  { id: 'mais200', rotulo: 'Acima de R$ 200', min: 200.01, max: Infinity },
+]
+type Ordem = 'sugestao' | 'menor' | 'maior'
+
+const reais = (v: number, aprox?: boolean) =>
+  aprox
+    ? `≈ R$ ${Math.round(v)}`
+    : v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: v % 1 ? 2 : 0 })
+
+function Preco({ item, className }: { item: Pick<Item, 'preco' | 'aprox'>; className?: string }) {
+  return (
+    <span
+      className={cn(
+        'font-serif text-[19px] leading-none font-semibold whitespace-nowrap tabular-nums lining-nums',
+        item.aprox ? 'text-muted-foreground' : 'text-rose-ink',
+        className,
+      )}
+      title={item.aprox ? 'Valor aproximado' : 'Preço de referência na loja (nov/2026)'}
+    >
+      {reais(item.preco, item.aprox)}
+      {item.aprox && <span className="sr-only"> (valor aproximado)</span>}
+    </span>
+  )
 }
 
 const ITENS: (Item & { cat: Categoria })[] = PRESENTES.map((p) => ({
@@ -66,6 +100,8 @@ export function SecaoPresentes() {
   const { reservas } = publico
   const [cat, setCat] = useState<Categoria | 'todas'>('todas')
   const [busca, setBusca] = useState('')
+  const [faixa, setFaixa] = useState<FaixaId>('todas')
+  const [ordem, setOrdem] = useState<Ordem>('sugestao')
   const termo = useDeferredValue(busca)
   const [aberto, setAberto] = useState<Item | null>(null)
   const [modalAberto, setModalAberto] = useState(false)
@@ -73,10 +109,30 @@ export function SecaoPresentes() {
 
   const faltam = (i: Pick<Item, 'id' | 'qtd'>) => Math.max(0, i.qtd - (publico.reservas[i.id] ?? 0))
 
-  const filtrados = useMemo(() => {
+  // categoria + busca (antes do filtro de preço, para contar cada faixa)
+  const semFaixa = useMemo(() => {
     const base = cat === 'todas' ? ITENS : ITENS.filter((i) => i.cat === cat)
     return filtrarPorTexto(base, termo, (i) => `${i.nome} ${i.desc ?? ''} ${i.cat}`)
   }, [cat, termo])
+
+  const porFaixa = useMemo(() => {
+    const m = new Map<FaixaId, number>()
+    for (const f of FAIXAS) m.set(f.id, semFaixa.filter((i) => i.preco >= f.min && i.preco <= f.max).length)
+    return m
+  }, [semFaixa])
+
+  const filtrados = useMemo(() => {
+    const f = FAIXAS.find((x) => x.id === faixa)!
+    return semFaixa.filter((i) => i.preco >= f.min && i.preco <= f.max)
+  }, [semFaixa, faixa])
+
+  const ordenados = useMemo(
+    () =>
+      ordem === 'sugestao'
+        ? filtrados
+        : [...filtrados].sort((a, b) => (ordem === 'menor' ? a.preco - b.preco : b.preco - a.preco)),
+    [filtrados, ordem],
+  )
 
   const grupos = useMemo(() => {
     const m = new Map<Categoria, typeof ITENS>()
@@ -106,7 +162,7 @@ export function SecaoPresentes() {
     setModalAberto(true)
   }
 
-  const resumindo = cat === 'todas' && !termo.trim()
+  const resumindo = cat === 'todas' && !termo.trim() && faixa === 'todas' && ordem === 'sugestao'
 
   return (
     <section id="presentes" aria-labelledby="titulo-presentes" className="scroll-mt-4 px-4 py-14 sm:py-20">
@@ -128,6 +184,10 @@ export function SecaoPresentes() {
             Toque em <strong className="font-medium text-rose-ink">“Vou presentear”</strong> para avisar e ninguém repetir o
             mesmo item. Os links são só referência — nada é cobrado por aqui.
           </span>
+          <span className="mt-2 block text-xs">
+            Valores de referência das lojas em novembro de 2026. Os marcados com <strong className="font-semibold">≈</strong> são
+            aproximados.
+          </span>
         </Revelar>
 
         {/* ---------------- Fraldas ---------------- */}
@@ -139,6 +199,8 @@ export function SecaoPresentes() {
                 id: f.id,
                 nome: f.rotulo,
                 qtd: f.qtd,
+                preco: f.preco,
+                aprox: true,
                 Icone: Baby,
                 tom: TOM_FRALDAS,
                 unidade: ['pacote', 'pacotes'],
@@ -163,7 +225,12 @@ export function SecaoPresentes() {
                         </span>
                       ) : null}
                     </div>
-                    <p className="mt-1 text-sm text-muted-foreground">{f.rotulo}</p>
+                    <p className="mt-1 flex flex-wrap items-baseline justify-between gap-x-2 text-sm text-muted-foreground">
+                      {f.rotulo}
+                      <span className="text-[13px]">
+                        <Preco item={item} className="text-[16px]" /> /pct
+                      </span>
+                    </p>
                     <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-blush-100">
                       <motion.div
                         className={cn('h-full origin-left rounded-full', resta ? 'bg-gradient-to-r from-blush-300 to-primary' : 'bg-success')}
@@ -227,7 +294,7 @@ export function SecaoPresentes() {
                   placeholder="Buscar: body, cueiro, mamadeira…"
                   autoComplete="off"
                   enterKeyHint="search"
-                  className="h-11 rounded-full border-transparent bg-blush-50/70 pr-12 pl-11 text-base shadow-none placeholder:text-[#a8888f] focus-visible:border-blush-300 focus-visible:bg-card focus-visible:ring-blush-200/70 md:text-base"
+                  className="h-11 rounded-full border-transparent bg-blush-50/70 pr-12 pl-11 text-base shadow-none placeholder:text-[#a99389] focus-visible:border-blush-300 focus-visible:bg-card focus-visible:ring-blush-200/70 md:text-base"
                 />
                 {busca && (
                   <button
@@ -250,6 +317,38 @@ export function SecaoPresentes() {
                   <Chip key={c} ativo={cat === c} onClick={() => escolherCategoria(c)} rotulo={c} n={contagem.get(c) ?? 0} Icone={CATEGORIA_VISUAL[c].Icone} />
                 ))}
               </div>
+              <div className="mt-1.5 flex items-center gap-2 border-t border-border/60 pt-2">
+                <div
+                  role="group"
+                  aria-label="Faixa de preço"
+                  className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                >
+                  <Wallet aria-hidden="true" className="ml-2 size-4 shrink-0 self-center text-gold-ink" strokeWidth={1.75} />
+                  {FAIXAS.map((f) => (
+                    <Chip
+                      key={f.id}
+                      ativo={faixa === f.id}
+                      onClick={() => setFaixa(f.id)}
+                      rotulo={f.rotulo}
+                      n={porFaixa.get(f.id) ?? 0}
+                      variante="ouro"
+                    />
+                  ))}
+                </div>
+                <label className="relative shrink-0">
+                  <span className="sr-only">Ordenar presentes</span>
+                  <ArrowDownUp aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <select
+                    value={ordem}
+                    onChange={(e) => setOrdem(e.target.value as Ordem)}
+                    className="h-9 cursor-pointer appearance-none rounded-full border border-border bg-card pr-3.5 pl-9 text-sm font-medium text-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  >
+                    <option value="sugestao">Por categoria</option>
+                    <option value="menor">Menor preço</option>
+                    <option value="maior">Maior preço</option>
+                  </select>
+                </label>
+              </div>
             </div>
           </div>
 
@@ -257,7 +356,24 @@ export function SecaoPresentes() {
             {plural(filtrados.length, 'presente encontrado', 'presentes encontrados')}
           </p>
 
-          <div className="mt-8 space-y-12">
+          {ordem !== 'sugestao' && filtrados.length > 0 && (
+            <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {ordenados.map((item, i) => (
+                <CartaoPresente
+                  key={item.id}
+                  item={item}
+                  indice={i}
+                  faltam={faltam(item)}
+                  reservados={publico.reservas[item.id] ?? 0}
+                  meus={minhasReservas[item.id] ?? 0}
+                  onPresentear={() => abrir(item)}
+                  categoria={item.cat}
+                />
+              ))}
+            </ul>
+          )}
+
+          <div className={cn('mt-8 space-y-12', ordem !== 'sugestao' && 'hidden')}>
             {grupos.map(([c, itens]) => {
               const visiveis = resumindo ? itens.slice(0, POR_PAGINA) : itens
               return (
@@ -296,17 +412,20 @@ export function SecaoPresentes() {
           {filtrados.length === 0 && (
             <div className="mt-8 rounded-[28px] border border-dashed border-blush-200 bg-card/70 px-6 py-10 text-center">
               <SearchX className="mx-auto size-9 text-blush-400" strokeWidth={1.5} aria-hidden="true" />
-              <p className="mt-3 font-serif text-2xl">Nada encontrado para “{busca.trim()}”</p>
-              <p className="mt-1 text-[15px] text-muted-foreground">Tente outra palavra ou veja todas as categorias.</p>
+              <p className="mt-3 font-serif text-2xl">
+                {busca.trim() ? `Nada encontrado para “${busca.trim()}”` : 'Nenhum presente nessa combinação'}
+              </p>
+              <p className="mt-1 text-[15px] text-muted-foreground">Tente outra faixa de preço, outra palavra ou outra categoria.</p>
               <Button
                 variant="soft"
                 className="mt-5"
                 onClick={() => {
                   setBusca('')
                   setCat('todas')
+                  setFaixa('todas')
                 }}
               >
-                Ver todos os presentes
+                Limpar filtros
               </Button>
             </div>
           )}
@@ -343,12 +462,14 @@ function Chip({
   n,
   Icone,
   onClick,
+  variante = 'rosa',
 }: {
   ativo: boolean
   rotulo: string
   n: number
   Icone?: LucideIcon
   onClick: () => void
+  variante?: 'rosa' | 'ouro'
 }) {
   return (
     <button
@@ -357,12 +478,16 @@ function Chip({
       onClick={onClick}
       className={cn(
         'flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3.5 text-sm font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
-        ativo ? 'bg-primary text-primary-foreground shadow-[0_8px_16px_-10px_rgb(180_77_100/0.8)]' : 'text-muted-foreground hover:bg-blush-50 hover:text-rose-ink',
+        ativo
+          ? variante === 'ouro'
+            ? 'bg-gold-soft text-gold-ink ring-1 ring-gold/40'
+            : 'bg-primary text-primary-foreground shadow-[0_8px_16px_-10px_rgb(176_88_95/0.8)]'
+          : 'text-muted-foreground hover:bg-blush-50 hover:text-rose-ink',
       )}
     >
       {Icone && <Icone className="size-4" strokeWidth={1.75} aria-hidden="true" />}
       {rotulo}
-      <span className={cn('text-xs tabular-nums', ativo ? 'text-white/75' : 'text-muted-foreground/70')}>{n}</span>
+      <span className={cn('text-xs tabular-nums', ativo ? (variante === 'ouro' ? 'text-gold-ink/70' : 'text-white/75') : 'text-muted-foreground/70')}>{n}</span>
     </button>
   )
 }
@@ -374,6 +499,7 @@ function CartaoPresente({
   reservados,
   meus,
   onPresentear,
+  categoria,
 }: {
   item: Item
   indice: number
@@ -381,6 +507,8 @@ function CartaoPresente({
   reservados: number
   meus: number
   onPresentear: () => void
+  /** mostra a categoria no cartão (lista ordenada por preço, sem grupos) */
+  categoria?: Categoria
 }) {
   const completo = item.qtd > 0 && faltam === 0
   return (
@@ -398,12 +526,14 @@ function CartaoPresente({
       <div className="flex gap-3.5">
         <SeloIcone Icone={item.Icone} tom={item.tom} apagado={completo} animado />
         <div className="min-w-0 flex-1">
+          {categoria && <p className="mb-0.5 text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">{categoria}</p>}
           <p className={cn('leading-snug font-medium', completo && 'text-muted-foreground')}>{item.nome}</p>
           {item.desc && <p className="mt-0.5 text-sm leading-snug text-muted-foreground">{item.desc}</p>}
         </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[13px]">
+        <Preco item={item} className={cn('mr-1', completo && 'text-muted-foreground/70')} />
         {completo ? (
           <span className="inline-flex items-center gap-1 rounded-full bg-success-soft px-2.5 py-1 font-medium text-success">
             <Check className="size-3.5" aria-hidden="true" /> Já garantido
@@ -527,6 +657,10 @@ function FluxoReserva({
         <SeloIcone Icone={item.Icone} tom={item.tom} tamanho="lg" className="shadow-soft" />
         <p className="mt-4 text-xs font-medium tracking-[0.3em] text-gold-ink uppercase">Vou presentear</p>
         <Titulo className="mt-1 px-6 font-serif text-[28px] leading-tight font-medium text-foreground">{item.nome}</Titulo>
+        <p className="mt-2">
+          <Preco item={item} className="text-[22px]" />
+          <span className="ml-1 text-sm text-muted-foreground">{item.aprox ? 'aproximado' : 'na loja'}</span>
+        </p>
         <Descricao className="mt-2 text-[15px] text-muted-foreground">
           {item.qtd > 0
             ? `Ainda faltam ${plural(faltam, uni, unis)} — avise quantas você vai levar.`

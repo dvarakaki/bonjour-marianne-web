@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { useContagem } from '@/hooks/use-browser'
 import { useRespostas } from '@/hooks/use-respostas'
 import { ANO, DIA, DIA_SEMANA, FIM, HORA_INICIO, INICIO, MES } from '@/lib/evento'
-import { Brilho, Divisor, Laco, Ramo, TorreEiffel } from './ornaments'
+import { ARTE, Borboleta, VOOS } from './jardim'
+import { Brilho, Divisor } from './ornaments'
 import { CartaoPapel, Digitos, EASE_OUT } from './primitives'
 
 const cartao: Variants = {
@@ -22,9 +23,13 @@ const item: Variants = {
   oculto: { opacity: 0, y: 16 },
   visivel: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_OUT } },
 }
-const laco: Variants = {
-  oculto: { opacity: 0, y: -14, rotate: -8, scale: 0.9 },
-  visivel: { opacity: 1, y: 0, rotate: 0, scale: 1, transition: { type: 'spring', stiffness: 160, damping: 12, delay: 0.25 } },
+const guirlanda: Variants = {
+  oculto: { opacity: 0, y: -18, scale: 1.04 },
+  visivel: { opacity: 1, y: 0, scale: 1, transition: { duration: 1.1, ease: EASE_OUT } },
+}
+const ursinhos: Variants = {
+  oculto: { opacity: 0, y: 24, scale: 0.96 },
+  visivel: { opacity: 1, y: 0, scale: 1, transition: { duration: 1, ease: EASE_OUT } },
 }
 const nome: Variants = {
   oculto: { clipPath: 'inset(0% 100% 0% 0%)' },
@@ -41,12 +46,21 @@ export function Hero({ pronto, onConfirmar, ctaRef }: Props) {
   const { minha } = useRespostas()
 
   return (
-    <section aria-labelledby="titulo-convite" className="relative px-4 pt-16 pb-10 sm:pt-24 sm:pb-16">
-      <motion.div initial="oculto" animate={pronto ? 'visivel' : 'oculto'} variants={cartao} className="mx-auto max-w-[580px]">
-        <CartaoPapel className="px-6 pt-20 pb-12 text-center sm:px-14 sm:pt-24 sm:pb-14">
-          <motion.div variants={laco} className="absolute -top-11 left-1/2 w-32 -translate-x-1/2 sm:-top-12 sm:w-36">
-            <Laco className="w-full drop-shadow-[0_8px_10px_rgb(158_66_89/0.25)]" />
-          </motion.div>
+    <section aria-labelledby="titulo-convite" className="relative px-4 pt-10 pb-10 sm:pt-16 sm:pb-16">
+      <motion.div initial="oculto" animate={pronto ? 'visivel' : 'oculto'} variants={cartao} className="relative mx-auto max-w-[580px]">
+        {VOOS.hero.map((v, i) => (
+          <Borboleta key={i} voo={v} visivel={pronto} />
+        ))}
+        <CartaoPapel className="overflow-hidden px-6 pb-12 text-center sm:px-14 sm:pb-14">
+          {/* guirlanda de rosas no topo, desbotando para o papel */}
+          <motion.img
+            variants={guirlanda}
+            src={ARTE.guirlanda}
+            alt=""
+            width={900}
+            height={191}
+            className="pointer-events-none relative -mx-6 block w-[calc(100%+3rem)] max-w-none select-none [mask-image:linear-gradient(#000_55%,transparent)] sm:-mx-14 sm:w-[calc(100%+7rem)]"
+          />
 
 
           <motion.p variants={item} className="text-foil animate-foil text-[13px] font-medium tracking-[0.42em] uppercase">
@@ -54,23 +68,28 @@ export function Hero({ pronto, onConfirmar, ctaRef }: Props) {
           </motion.p>
 
           <h1 id="titulo-convite" tabIndex={-1} className="relative mt-3 outline-none">
-            <motion.span variants={item} className="block font-serif text-[30px] text-muted-foreground italic sm:text-4xl">
+            <motion.span variants={item} className="block font-serif text-[26px] leading-tight text-muted-foreground italic sm:text-[32px]">
               {CONFIG.saudacao}
             </motion.span>
             <motion.span
               variants={nome}
-              className="-mx-6 block bg-gradient-to-b from-[#c8657d] to-[#933a52] bg-clip-text px-6 pb-3 font-script text-[clamp(4.6rem,21vw,7.6rem)] leading-[1.08] text-transparent"
+              className="-mx-6 block bg-gradient-to-b from-[#c47a74] to-[#8f4a4b] bg-clip-text px-6 pb-3 font-script text-[clamp(4.6rem,21vw,7.6rem)] leading-[1.08] text-transparent"
             >
               {CONFIG.bebe}
             </motion.span>
             <Brilhos pronto={pronto} />
           </h1>
 
-          <motion.div variants={item} className="-mt-1 flex items-end justify-center gap-1 sm:gap-3">
-            <Ramo className="mb-1 w-[92px] -scale-x-100 sm:w-28" />
-            <TorreEiffel desenhar={pronto} atraso={0.9} className="h-36 w-auto text-blush-400 sm:h-44" />
-            <Ramo className="mb-1 w-[92px] sm:w-28" />
-          </motion.div>
+          <motion.figure variants={ursinhos} className="relative -mx-2 mt-1 sm:-mx-6">
+            <img
+              src={ARTE.ursinhos}
+              alt="Dois ursinhos sentados num jardim florido, com regador e cesta de flores"
+              width={900}
+              height={499}
+              className="block aspect-[900/499] w-full rounded-[26px] object-cover shadow-soft ring-1 ring-border/70"
+            />
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-[26px] shadow-[inset_0_0_40px_rgb(251_244_236/0.55)]" />
+          </motion.figure>
 
           <motion.p
             variants={item}

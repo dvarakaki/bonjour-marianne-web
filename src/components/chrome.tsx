@@ -4,6 +4,7 @@ import { Heart } from 'lucide-react'
 import { CONFIG } from '@/config'
 import { Button } from '@/components/ui/button'
 import { DATA_CURTA } from '@/lib/evento'
+import { ARTE, Borboleta, VOOS } from './jardim'
 import { Divisor, Laco } from './ornaments'
 
 /* Botão flutuante que aparece quando o convidado rola para longe do convite */
@@ -71,10 +72,24 @@ function usePassouDe(alvo: RefObject<HTMLElement | null>) {
 
 export function Rodape() {
   return (
-    <footer className="px-4 pt-6 pb-32 text-center">
+    <footer className="relative px-4 pt-6 pb-32 text-center">
       <Divisor />
-      <Laco className="mx-auto mt-8 w-16 opacity-90" />
-      <p className="mt-2 font-script text-6xl leading-tight text-primary">{CONFIG.bebe}</p>
+      <div className="relative mx-auto mt-10 max-w-3xl">
+        <Borboleta voo={VOOS.secao[0]} />
+        <img
+          src={ARTE.ursinhos}
+          alt="Dois ursinhos sentados num jardim florido"
+          width={900}
+          height={499}
+          loading="lazy"
+          className="block aspect-[900/499] w-full rounded-[32px] object-cover shadow-card [mask-image:linear-gradient(#000_70%,transparent)]"
+        />
+      </div>
+      <p className="mx-auto -mt-6 max-w-md font-serif text-[22px] leading-snug text-foreground italic sm:-mt-10 sm:text-2xl">
+        Algumas flores chegam para deixar nosso jardim mais bonito. A {CONFIG.bebe} chegou para transformar nossas vidas inteiras.
+      </p>
+      <Laco className="mx-auto mt-8 w-14 opacity-90" />
+      <p className="mt-1 font-script text-6xl leading-tight text-primary">{CONFIG.bebe}</p>
       <p className="mt-1 text-[15px] text-muted-foreground">
         Com amor, {CONFIG.anfitrioes} · {DATA_CURTA}
       </p>

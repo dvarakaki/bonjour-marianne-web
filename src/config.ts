@@ -16,15 +16,23 @@ export type Config = {
   presente: { texto: string }
   confirmarAte: string
   whatsapp: string
-  appsScriptUrl: string
+  /** Banco de dados (Firebase). null = modo demonstração, tudo fica só no navegador */
+  firebase: {
+    apiKey: string
+    authDomain: string
+    projectId: string
+    storageBucket: string
+    messagingSenderId: string
+    appId: string
+  } | null
 }
 
 export const CONFIG: Config = {
   bebe: 'Marianne',
-  saudacao: 'Bonjour,',
-  anfitrioes: 'Mamãe & Papai',
+  saudacao: 'Bem-vindos ao jardim da',
+  anfitrioes: 'Papai & Mamãe',
   mensagem:
-    'Uma pequena parisiense está a caminho! Venha celebrar com a gente a chegada da nossa princesinha.',
+    'Nosso jardim está florescendo e queremos celebrar, com muito amor, a chegada da nossa pequena!',
 
   // Data e hora com fuso (−03:00 = horário de Brasília)
   inicio: '2026-12-06T16:00:00-03:00',
@@ -48,7 +56,15 @@ export const CONFIG: Config = {
   // WhatsApp dos anfitriões (só dígitos, com DDI + DDD) para dúvidas. Vazio = esconde.
   whatsapp: '5511963062840',
 
-  // URL do Google Apps Script (veja LEIAME.md).
-  // Vazio = modo demonstração: respostas e reservas ficam salvas só no navegador de quem respondeu.
-  appsScriptUrl: '',
+  // Banco de dados das confirmações e reservas (projeto Firebase "bonjour-marianne-cha").
+  // Estes valores são públicos por natureza; quem protege os dados são as regras em firestore.rules.
+  // Troque por null para voltar ao modo demonstração.
+  firebase: {
+    apiKey: 'AIzaSyD5uyyyhR5EcQFdEw7OP96dfL3JWBmHPz0',
+    authDomain: 'bonjour-marianne-cha.firebaseapp.com',
+    projectId: 'bonjour-marianne-cha',
+    storageBucket: 'bonjour-marianne-cha.firebasestorage.app',
+    messagingSenderId: '665907140136',
+    appId: '1:665907140136:web:a58a55bad60f9abc3f471d',
+  },
 }

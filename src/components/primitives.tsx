@@ -11,9 +11,9 @@ export const EASE_OUT = [0.22, 1, 0.36, 1] as const
 export function Fundo() {
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <div className="absolute -top-40 -left-40 size-[34rem] rounded-full bg-[#f8d5dc]/60 blur-3xl" />
-      <div className="absolute top-1/3 -right-48 size-[30rem] rounded-full bg-[#fde3d5]/60 blur-3xl" />
-      <div className="absolute -bottom-48 left-1/4 size-[32rem] rounded-full bg-[#e3eee4]/55 blur-3xl" />
+      <div className="absolute -top-40 -left-40 size-[34rem] rounded-full bg-[#f6d8d2]/60 blur-3xl" />
+      <div className="absolute top-1/3 -right-48 size-[30rem] rounded-full bg-[#fbe7d4]/60 blur-3xl" />
+      <div className="absolute -bottom-48 left-1/4 size-[32rem] rounded-full bg-[#e3ebd8]/55 blur-3xl" />
       <div className="bg-grain absolute inset-0 opacity-80" />
     </div>
   )
@@ -24,7 +24,7 @@ export function CartaoPapel({ className, children }: { className?: string; child
   return (
     <div className={cn('relative isolate rounded-[32px] bg-card shadow-card', className)}>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-[32px]">
-        <div className="absolute inset-x-0 top-0 h-64 bg-[radial-gradient(70%_100%_at_50%_0%,#fdecef_0%,transparent_100%)]" />
+        <div className="absolute inset-x-0 top-0 h-64 bg-[radial-gradient(70%_100%_at_50%_0%,#fbeae2_0%,transparent_100%)]" />
         <div className="bg-grain absolute inset-0 opacity-60" />
       </div>
       <div aria-hidden="true" className="pointer-events-none absolute inset-3 rounded-[24px] border border-gold/45" />
@@ -81,7 +81,7 @@ export function TituloSecao({
 
 /* Avatar com iniciais */
 const TONS = [
-  'bg-[#fbe7eb] text-[#9e4259]',
+  'bg-[#f9e3e0] text-[#96484f]',
   'bg-[#fcebdf] text-[#99512f]',
   'bg-[#efe7f6] text-[#674a86]',
   'bg-[#e6f0e8] text-[#45704f]',

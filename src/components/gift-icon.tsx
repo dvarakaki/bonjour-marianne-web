@@ -57,7 +57,7 @@ const TONS = {
     fundo: 'bg-[linear-gradient(145deg,#fff5f7_0%,#fbe1e7_100%)]',
     anel: 'ring-[#f2cbd5]',
     tinta: 'text-[#a8455d]',
-    chip: 'bg-[#fbe7eb] text-[#a8455d]',
+    chip: 'bg-[#f9e3e0] text-[#a8455d]',
   },
   pessego: {
     fundo: 'bg-[linear-gradient(145deg,#fff7f1_0%,#fbe3d3_100%)]',

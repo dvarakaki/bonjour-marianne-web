@@ -1,13 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
-  carregarPublico,
   gravarMinhaConfirmacao,
   gravarMinhaReserva,
   lerMinhaConfirmacao,
   lerMinhasReservas,
+  MODO_DEMO,
+  observarPublico,
   salvarConfirmacao,
   salvarReserva,
-  totalPessoas,
   type Confirmacao,
   type Publico,
   type Reserva,
@@ -18,7 +18,7 @@ type Estado = 'carregando' | 'pronto' | 'erro'
 type Valor = {
   publico: Publico
   estado: Estado
-  recarregar: () => Promise<void>
+  recarregar: () => void
   /** resposta dada neste aparelho (para editar depois) */
   minha: Confirmacao | null
   confirmar: (c: Confirmacao) => Promise<void>
@@ -35,52 +35,43 @@ export function RespostasProvider({ children }: { children: ReactNode }) {
   const [estado, setEstado] = useState<Estado>('carregando')
   const [minha, setMinha] = useState<Confirmacao | null>(lerMinhaConfirmacao)
   const [minhasReservas, setMinhasReservas] = useState(lerMinhasReservas)
-
-  const recarregar = useCallback(async () => {
-    try {
-      setPublico(await carregarPublico())
-      setEstado('pronto')
-    } catch (err) {
-      console.error(err)
-      setEstado((e) => (e === 'pronto' ? 'pronto' : 'erro'))
-    }
-  }, [])
+  // muda para reabrir a escuta (botão "tentar de novo" e modo demonstração)
+  const [rodada, setRodada] = useState(0)
 
   useEffect(() => {
-    void recarregar()
-    const aoVoltar = () => {
-      if (document.visibilityState === 'visible') void recarregar()
-    }
-    document.addEventListener('visibilitychange', aoVoltar)
-    return () => document.removeEventListener('visibilitychange', aoVoltar)
-  }, [recarregar])
+    return observarPublico(
+      (p) => {
+        setPublico(p)
+        setEstado('pronto')
+      },
+      (err) => {
+        console.error(err)
+        setEstado((e) => (e === 'pronto' ? 'pronto' : 'erro'))
+      },
+    )
+  }, [rodada])
+
+  const recarregar = useCallback(() => setRodada((r) => r + 1), [])
 
   const confirmar = useCallback(
     async (c: Confirmacao) => {
       await salvarConfirmacao(c)
-      // atualiza o contador na hora, sem esperar o servidor
-      setPublico((p) => {
-        const antes = minha?.id === c.id ? minha : null
-        const delta = totalPessoas(c) - (antes ? totalPessoas(antes) : 0)
-        const deltaConf = (c.status === 'sim' ? 1 : 0) - (antes?.status === 'sim' ? 1 : 0)
-        return { ...p, pessoas: Math.max(0, p.pessoas + delta), confirmacoes: Math.max(0, p.confirmacoes + deltaConf) }
-      })
       gravarMinhaConfirmacao(c)
       setMinha(c)
+      // no Firebase os números chegam sozinhos (tempo real); na demonstração, relê
+      if (MODO_DEMO) recarregar()
     },
-    [minha],
+    [recarregar],
   )
 
-  const reservar = useCallback(async (r: Reserva) => {
-    try {
+  const reservar = useCallback(
+    async (r: Reserva) => {
       await salvarReserva(r)
-    } catch (err) {
-      void recarregar() // o item pode ter acabado: mostra o número certo
-      throw err
-    }
-    setPublico((p) => ({ ...p, reservas: { ...p.reservas, [r.itemId]: (p.reservas[r.itemId] ?? 0) + r.qtd } }))
-    setMinhasReservas(gravarMinhaReserva(r.itemId, r.qtd))
-  }, [recarregar])
+      setMinhasReservas(gravarMinhaReserva(r.itemId, r.qtd))
+      if (MODO_DEMO) recarregar()
+    },
+    [recarregar],
+  )
 
   const valor = useMemo(
     () => ({ publico, estado, recarregar, minha, confirmar, minhasReservas, reservar }),

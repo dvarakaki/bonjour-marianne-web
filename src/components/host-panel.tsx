@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
-import { ArrowLeft, Copy, Download, Gift, KeyRound, LoaderCircle, Mail, MessageCircle, RefreshCw, Search, Send, Users } from 'lucide-react'
+import { ArrowLeft, Copy, Download, Gift, KeyRound, LoaderCircle, LogOut, Mail, MessageCircle, RefreshCw, Search, Send, Trash2, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { CONFIG } from '@/config'
 import { Button } from '@/components/ui/button'
@@ -8,10 +8,13 @@ import { FRALDAS, PRESENTES } from '@/data/presentes'
 import { linkConvite, mensagemConvite, whatsLink } from '@/lib/evento'
 import {
   carregarPainel,
+  entrarPainel,
   ErroServidor,
-  gravarSenhaPainel,
-  lerSenhaPainel,
+  excluirConfirmacao,
+  excluirReserva,
   MODO_DEMO,
+  painelLogado,
+  sairPainel,
   totalPessoas,
   type DadosPainel,
 } from '@/lib/store'
@@ -39,7 +42,7 @@ const quando = (iso: string) => {
 }
 
 export function PainelAnfitrioes() {
-  const [senha, setSenha] = useState(() => (MODO_DEMO ? 'demo' : lerSenhaPainel()))
+  const [logado, setLogado] = useState<boolean | null>(null)
   const [dados, setDados] = useState<DadosPainel | null>(null)
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
@@ -48,28 +51,46 @@ export function PainelAnfitrioes() {
     window.scrollTo(0, 0)
   }, [])
 
-  const carregar = useCallback(async (s: string) => {
+  const carregar = useCallback(async () => {
     setCarregando(true)
     setErro(null)
     try {
-      const d = await carregarPainel(s)
-      setDados(d)
-      if (!MODO_DEMO) gravarSenhaPainel(s)
-      return true
+      setDados(await carregarPainel())
     } catch (err) {
       console.error(err)
-      setErro(err instanceof ErroServidor ? err.message : 'Não foi possível carregar. Confira a internet e tente de novo.')
-      return false
+      setErro('Não foi possível carregar. Confira a internet e tente de novo.')
     } finally {
       setCarregando(false)
     }
   }, [])
 
+  // já entrou antes neste aparelho? (o login fica guardado)
   useEffect(() => {
-    if (senha) void carregar(senha).then((ok) => !ok && !MODO_DEMO && setSenha(''))
-    // só na primeira vez; depois o botão "Atualizar" chama carregar
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    void painelLogado().then((ok) => {
+      setLogado(ok)
+      if (ok) void carregar()
+    })
+  }, [carregar])
+
+  async function entrar(senha: string) {
+    setCarregando(true)
+    setErro(null)
+    try {
+      await entrarPainel(senha)
+      setLogado(true)
+      await carregar()
+    } catch (err) {
+      console.error(err)
+      setErro(err instanceof ErroServidor ? err.message : 'Não foi possível entrar. Confira a internet e tente de novo.')
+      setCarregando(false)
+    }
+  }
+
+  async function sair() {
+    await sairPainel()
+    setDados(null)
+    setLogado(false)
+  }
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10 sm:py-14">
@@ -80,15 +101,20 @@ export function PainelAnfitrioes() {
             Chá da <span className="font-script text-[1.25em] font-normal text-primary">{CONFIG.bebe}</span>
           </h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" asChild>
             <a href="#">
               <ArrowLeft /> Ver convite
             </a>
           </Button>
           {dados && (
-            <Button variant="soft" onClick={() => void carregar(senha)} disabled={carregando}>
+            <Button variant="soft" onClick={() => void carregar()} disabled={carregando}>
               <RefreshCw className={cn(carregando && 'animate-spin')} /> Atualizar
+            </Button>
+          )}
+          {dados && !MODO_DEMO && (
+            <Button variant="ghost" onClick={() => void sair()}>
+              <LogOut /> Sair
             </Button>
           )}
         </div>
@@ -97,20 +123,23 @@ export function PainelAnfitrioes() {
       {MODO_DEMO && (
         <p className="mt-6 rounded-2xl bg-gold-soft px-4 py-3 text-sm text-gold-ink">
           Modo demonstração: este painel mostra só as respostas dadas neste navegador. Configure o{' '}
-          <code className="font-semibold">appsScriptUrl</code> para ver as respostas de todos.
+          <code className="font-semibold">firebase</code> em <code className="font-semibold">src/config.ts</code> para ver as
+          respostas de todos.
         </p>
       )}
 
       {dados ? (
-        <Conteudo dados={dados} />
+        <Conteudo dados={dados} onMudou={() => void carregar()} />
+      ) : logado === false ? (
+        <Entrar carregando={carregando} erro={erro} onEntrar={entrar} />
       ) : (
-        <Entrar
-          carregando={carregando}
-          erro={erro}
-          onEntrar={async (s) => {
-            if (await carregar(s)) setSenha(s)
-          }}
-        />
+        <div className="mt-16 flex justify-center text-muted-foreground" aria-live="polite">
+          {erro ? (
+            <p className="rounded-2xl bg-destructive/8 px-4 py-3 text-sm text-destructive">{erro}</p>
+          ) : (
+            <LoaderCircle className="size-7 animate-spin" aria-label="Carregando" />
+          )}
+        </div>
       )}
     </main>
   )
@@ -149,7 +178,7 @@ function Entrar({ carregando, erro, onEntrar }: { carregando: boolean; erro: str
         {carregando ? <LoaderCircle className="animate-spin" /> : <KeyRound />} Entrar
       </Button>
       <p className="mt-4 text-xs text-muted-foreground">
-        A senha é a propriedade <code>SENHA_PAINEL</code> do Apps Script (veja o LEIAME).
+        A senha está no arquivo <code>.senha-painel.txt</code>, na pasta do projeto.
       </p>
     </form>
   )
@@ -160,7 +189,30 @@ const NOMES_ITENS = new Map<string, string>([
   ...PRESENTES.map((p) => [p.id, p.nome] as [string, string]),
 ])
 
-function Conteudo({ dados }: { dados: DadosPainel }) {
+function Conteudo({ dados, onMudou }: { dados: DadosPainel; onMudou: () => void }) {
+  const [apagando, setApagando] = useState<string | null>(null)
+  const [confirmarApagar, setConfirmarApagar] = useState<string | null>(null)
+
+  async function apagar(chave: string, acao: () => Promise<void>, aviso: string) {
+    if (confirmarApagar !== chave) {
+      setConfirmarApagar(chave)
+      setTimeout(() => setConfirmarApagar((c) => (c === chave ? null : c)), 4000)
+      return
+    }
+    setApagando(chave)
+    try {
+      await acao()
+      toast.success(aviso)
+      onMudou()
+    } catch (e) {
+      console.error(e)
+      toast.error('Não foi possível apagar agora')
+    } finally {
+      setApagando(null)
+      setConfirmarApagar(null)
+    }
+  }
+
   const [aba, setAba] = useState<Aba>('confirmacoes')
   const [filtro, setFiltro] = useState<Filtro>('todos')
   const [busca, setBusca] = useState('')
@@ -341,6 +393,15 @@ function Conteudo({ dados }: { dados: DadosPainel }) {
                             </a>
                           </Button>
                         )}
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          className="ml-auto hover:text-destructive"
+                          disabled={apagando === c.id}
+                          onClick={() => void apagar(c.id, () => excluirConfirmacao(c), 'Resposta removida')}
+                        >
+                          <Trash2 /> {confirmarApagar === c.id ? 'Toque de novo para apagar' : 'Apagar'}
+                        </Button>
                       </div>
                     </div>
                   </li>
@@ -366,6 +427,15 @@ function Conteudo({ dados }: { dados: DadosPainel }) {
                     {r.nome} · {quando(r.criadoEm)}
                   </p>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  className="shrink-0 hover:text-destructive"
+                  disabled={apagando === r.id}
+                  onClick={() => void apagar(r.id, () => excluirReserva(r.id), 'Reserva cancelada — o item voltou para a lista')}
+                >
+                  <Trash2 /> {confirmarApagar === r.id ? 'Confirmar' : 'Cancelar'}
+                </Button>
               </li>
             ))}
             {listaReservas.length === 0 && (
@@ -376,7 +446,7 @@ function Conteudo({ dados }: { dados: DadosPainel }) {
           </ul>
         )}
         <p className="mt-4 text-center text-sm text-muted-foreground">
-          Tudo fica também na planilha do Google (abas “Confirmações” e “Presentes”). Para cancelar uma reserva, apague a linha lá.
+          Os dados ficam guardados no Firebase (projeto “bonjour-marianne-cha”). Baixe o CSV para abrir no Excel ou no Google Planilhas.
         </p>
       </section>
     </>

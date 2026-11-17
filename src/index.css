@@ -7,31 +7,31 @@
 @custom-variant dark (&:is(.dark *));
 
 /* =====================================================================
-   Design tokens — Bonjour, Marianne
-   Papelaria parisiense: papel creme, rosa antigo, dourado.
+   Design tokens — Jardim da Marianne
+   Aquarela de jardim: papel creme, rosa antigo, marrom de ursinho, sálvia e dourado.
    ===================================================================== */
 :root {
   color-scheme: light;
   --radius: 1rem;
 
-  --background: #fff8f5;
-  --foreground: #4a2230;
-  --card: #fffdfb;
-  --card-foreground: #4a2230;
-  --popover: #fffdfb;
-  --popover-foreground: #4a2230;
-  --primary: #b44d64;
+  --background: #fbf4ec;
+  --foreground: #4f3a31;
+  --card: #fffbf6;
+  --card-foreground: #4f3a31;
+  --popover: #fffbf6;
+  --popover-foreground: #4f3a31;
+  --primary: #b0585f;
   --primary-foreground: #ffffff;
-  --secondary: #fbe7eb;
-  --secondary-foreground: #7a3247;
-  --muted: #f9eef0;
-  --muted-foreground: #7d5f68;
-  --accent: #fbe7eb;
-  --accent-foreground: #7a3247;
+  --secondary: #f8e4e1;
+  --secondary-foreground: #7c3e43;
+  --muted: #f5ebe3;
+  --muted-foreground: #7b6358;
+  --accent: #f8e4e1;
+  --accent-foreground: #7c3e43;
   --destructive: #b3261e;
-  --border: #f0dde1;
-  --input: #e9d0d6;
-  --ring: #d98a9b;
+  --border: #eedfd3;
+  --input: #e6d2c5;
+  --ring: #d4949a;
 
   /* textura de papel (ruído SVG) */
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.29 0 0 0 0 0.13 0 0 0 0 0.19 0 0 0 0.075 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
@@ -64,13 +64,16 @@
 }
 
 @theme {
-  --color-blush-50: #fef5f6;
-  --color-blush-100: #fbe7eb;
-  --color-blush-200: #f6d0d8;
-  --color-blush-300: #efb0be;
-  --color-blush-400: #e08a9e;
-  --color-rose-ink: #9e4259;
-  --color-plum: #4a2230;
+  --color-blush-50: #fdf3f1;
+  --color-blush-100: #f9e3e0;
+  --color-blush-200: #f2cbc7;
+  --color-blush-300: #e6aaa8;
+  --color-blush-400: #d48589;
+  --color-rose-ink: #96484f;
+  --color-plum: #4f3a31;
+  --color-sage: #93a684;
+  --color-sage-soft: #e8eedf;
+  --color-bear: #b88a63;
   --color-gold: #b8925a;
   --color-gold-ink: #8a6a35;
   --color-gold-soft: #f6ecd9;
@@ -81,9 +84,9 @@
   --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
   --font-script: "Great Vibes", "Brush Script MT", cursive;
 
-  --shadow-soft: 0 1px 2px rgb(74 34 48 / 0.04), 0 10px 24px -14px rgb(158 66 89 / 0.22);
-  --shadow-card: 0 2px 6px rgb(74 34 48 / 0.04), 0 30px 60px -30px rgb(158 66 89 / 0.38);
-  --shadow-float: 0 20px 40px -16px rgb(158 66 89 / 0.55);
+  --shadow-soft: 0 1px 2px rgb(79 58 49 / 0.05), 0 10px 24px -14px rgb(150 90 70 / 0.22);
+  --shadow-card: 0 2px 6px rgb(79 58 49 / 0.05), 0 30px 60px -30px rgb(150 90 70 / 0.36);
+  --shadow-float: 0 20px 40px -16px rgb(150 72 79 / 0.55);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -100,10 +103,10 @@
 
 /* Forro do envelope: bolinhas sobre rosa */
 @utility bg-liner {
-  background-color: #eab3bf;
+  background-color: #e8b8b4;
   background-image:
     radial-gradient(rgb(255 255 255 / 0.6) 1.1px, transparent 1.7px),
-    linear-gradient(160deg, #f4ccd4, #e2a3b1);
+    linear-gradient(160deg, #f3d3cd, #dfa9a6);
   background-size: 11px 11px, 100% 100%;
 }
 
@@ -149,7 +152,16 @@
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #fbeef1 0%, #fffaf9 50%, #fbeef1 100%);
+  background: linear-gradient(90deg, #f6ebe3 0%, #fffbf6 50%, #f6ebe3 100%);
   background-size: 200% 100%;
   animation: shimmer 1.6s linear infinite;
+}
+
+/* Borboletas: voo suave de um lado para o outro */
+@keyframes borboleta-asas {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.55); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .asas { animation: borboleta-asas 0.42s ease-in-out infinite; transform-origin: 50% 50%; }
 }
