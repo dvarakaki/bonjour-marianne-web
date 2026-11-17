@@ -1,6 +1,6 @@
 import { useDeferredValue, useMemo, useRef, useState, type FormEvent } from 'react'
 import { motion } from 'motion/react'
-import { ArrowRight, Check, ExternalLink, Gift, Heart, LoaderCircle, Minus, Plus, Search, SearchX, X } from 'lucide-react'
+import { ArrowRight, Baby, Check, ExternalLink, Gift, Heart, LoaderCircle, Minus, Plus, Search, SearchX, X, type LucideIcon } from 'lucide-react'
 import { CONFIG } from '@/config'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,6 +10,7 @@ import { ErroServidor, MODO_DEMO } from '@/lib/store'
 import { filtrarPorTexto, novoId, plural } from '@/lib/texto'
 import { cn } from '@/lib/utils'
 import { SeloCoracao, soltarConfete } from './celebracao'
+import { CATEGORIA_VISUAL, iconeDoItem, SeloIcone, TOM_FRALDAS } from './gift-icon'
 import { ModalResponsivo, type TextoComp } from './modal'
 import { EASE_OUT, Revelar, TituloSecao } from './primitives'
 
@@ -19,12 +20,18 @@ type Item = {
   desc?: string
   /** 0 = quantidade livre */
   qtd: number
-  emoji: string
+  Icone: LucideIcon
+  tom: (typeof CATEGORIA_VISUAL)[Categoria]['tom']
   link?: string
   unidade: [string, string]
 }
 
-const ITENS: (Item & { cat: Categoria })[] = PRESENTES.map((p) => ({ ...p, unidade: ['unidade', 'unidades'] }))
+const ITENS: (Item & { cat: Categoria })[] = PRESENTES.map((p) => ({
+  ...p,
+  Icone: iconeDoItem(p.nome, p.cat),
+  tom: CATEGORIA_VISUAL[p.cat].tom,
+  unidade: ['unidade', 'unidades'],
+}))
 const POR_PAGINA = 6
 const MAX_LIVRE = 10
 
@@ -132,7 +139,8 @@ export function SecaoPresentes() {
                 id: f.id,
                 nome: f.rotulo,
                 qtd: f.qtd,
-                emoji: '🧷',
+                Icone: Baby,
+                tom: TOM_FRALDAS,
                 unidade: ['pacote', 'pacotes'],
               }
               const resta = faltam(f)
@@ -239,7 +247,7 @@ export function SecaoPresentes() {
               >
                 <Chip ativo={cat === 'todas'} onClick={() => escolherCategoria('todas')} rotulo="Todas" n={ITENS.length} />
                 {CATEGORIAS.map((c) => (
-                  <Chip key={c} ativo={cat === c} onClick={() => escolherCategoria(c)} rotulo={c} n={contagem.get(c) ?? 0} />
+                  <Chip key={c} ativo={cat === c} onClick={() => escolherCategoria(c)} rotulo={c} n={contagem.get(c) ?? 0} Icone={CATEGORIA_VISUAL[c].Icone} />
                 ))}
               </div>
             </div>
@@ -255,6 +263,7 @@ export function SecaoPresentes() {
               return (
                 <section key={c} aria-label={c}>
                   <h4 className="mb-4 flex items-center gap-3 px-1 font-serif text-[28px] leading-none font-medium text-foreground italic">
+                    <SeloIcone Icone={CATEGORIA_VISUAL[c].Icone} tom={CATEGORIA_VISUAL[c].tom} tamanho="sm" />
                     {c}
                     <span className="font-sans text-sm font-normal text-muted-foreground not-italic">{itens.length}</span>
                     <span aria-hidden="true" className="h-px flex-1 bg-gradient-to-r from-gold/40 to-transparent" />
@@ -328,7 +337,19 @@ function CabecalhoBloco({ titulo, descricao }: { titulo: string; descricao: stri
   )
 }
 
-function Chip({ ativo, rotulo, n, onClick }: { ativo: boolean; rotulo: string; n: number; onClick: () => void }) {
+function Chip({
+  ativo,
+  rotulo,
+  n,
+  Icone,
+  onClick,
+}: {
+  ativo: boolean
+  rotulo: string
+  n: number
+  Icone?: LucideIcon
+  onClick: () => void
+}) {
   return (
     <button
       type="button"
@@ -339,6 +360,7 @@ function Chip({ ativo, rotulo, n, onClick }: { ativo: boolean; rotulo: string; n
         ativo ? 'bg-primary text-primary-foreground shadow-[0_8px_16px_-10px_rgb(180_77_100/0.8)]' : 'text-muted-foreground hover:bg-blush-50 hover:text-rose-ink',
       )}
     >
+      {Icone && <Icone className="size-4" strokeWidth={1.75} aria-hidden="true" />}
       {rotulo}
       <span className={cn('text-xs tabular-nums', ativo ? 'text-white/75' : 'text-muted-foreground/70')}>{n}</span>
     </button>
@@ -374,15 +396,7 @@ function CartaoPresente({
       )}
     >
       <div className="flex gap-3.5">
-        <span
-          aria-hidden="true"
-          className={cn(
-            'grid size-14 shrink-0 place-items-center rounded-2xl text-[28px] transition-transform duration-300',
-            completo ? 'bg-muted grayscale-[.6]' : 'bg-gradient-to-br from-blush-50 to-blush-100 group-hover:scale-105 group-hover:-rotate-3',
-          )}
-        >
-          {item.emoji}
-        </span>
+        <SeloIcone Icone={item.Icone} tom={item.tom} apagado={completo} animado />
         <div className="min-w-0 flex-1">
           <p className={cn('leading-snug font-medium', completo && 'text-muted-foreground')}>{item.nome}</p>
           {item.desc && <p className="mt-0.5 text-sm leading-snug text-muted-foreground">{item.desc}</p>}
@@ -510,9 +524,7 @@ function FluxoReserva({
   return (
     <form onSubmit={enviar}>
       <div className="flex flex-col items-center text-center">
-        <span aria-hidden="true" className="grid size-20 place-items-center rounded-[26px] bg-gradient-to-br from-blush-50 to-blush-100 text-[40px] shadow-soft">
-          {item.emoji}
-        </span>
+        <SeloIcone Icone={item.Icone} tom={item.tom} tamanho="lg" className="shadow-soft" />
         <p className="mt-4 text-xs font-medium tracking-[0.3em] text-gold-ink uppercase">Vou presentear</p>
         <Titulo className="mt-1 px-6 font-serif text-[28px] leading-tight font-medium text-foreground">{item.nome}</Titulo>
         <Descricao className="mt-2 text-[15px] text-muted-foreground">
