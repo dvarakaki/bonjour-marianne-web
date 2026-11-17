@@ -1,27 +1,44 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { CONVIDADOS } from '@/lib/guests'
-import { carregarRespostas, salvarResposta, type NovaResposta, type Respostas } from '@/lib/store'
+import {
+  carregarPublico,
+  gravarMinhaConfirmacao,
+  gravarMinhaReserva,
+  lerMinhaConfirmacao,
+  lerMinhasReservas,
+  salvarConfirmacao,
+  salvarReserva,
+  totalPessoas,
+  type Confirmacao,
+  type Publico,
+  type Reserva,
+} from '@/lib/store'
 
 type Estado = 'carregando' | 'pronto' | 'erro'
 
 type Valor = {
-  respostas: Respostas
+  publico: Publico
   estado: Estado
   recarregar: () => Promise<void>
-  salvar: (p: NovaResposta) => Promise<void>
-  resumo: { pessoas: number; sim: number; nao: number; pendentes: number }
+  /** resposta dada neste aparelho (para editar depois) */
+  minha: Confirmacao | null
+  confirmar: (c: Confirmacao) => Promise<void>
+  /** reservas feitas neste aparelho: itemId → quantidade */
+  minhasReservas: Record<string, number>
+  reservar: (r: Reserva) => Promise<void>
 }
 
+const VAZIO: Publico = { pessoas: 0, confirmacoes: 0, reservas: {} }
 const Contexto = createContext<Valor | null>(null)
 
 export function RespostasProvider({ children }: { children: ReactNode }) {
-  const [respostas, setRespostas] = useState<Respostas>({})
+  const [publico, setPublico] = useState<Publico>(VAZIO)
   const [estado, setEstado] = useState<Estado>('carregando')
+  const [minha, setMinha] = useState<Confirmacao | null>(lerMinhaConfirmacao)
+  const [minhasReservas, setMinhasReservas] = useState(lerMinhasReservas)
 
   const recarregar = useCallback(async () => {
     try {
-      const r = await carregarRespostas()
-      setRespostas(r)
+      setPublico(await carregarPublico())
       setEstado('pronto')
     } catch (err) {
       console.error(err)
@@ -38,29 +55,36 @@ export function RespostasProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener('visibilitychange', aoVoltar)
   }, [recarregar])
 
-  const salvar = useCallback(async (p: NovaResposta) => {
-    await salvarResposta(p)
-    setRespostas((r) => ({ ...r, [p.id]: { status: p.status, pessoas: p.pessoas } }))
-  }, [])
+  const confirmar = useCallback(
+    async (c: Confirmacao) => {
+      await salvarConfirmacao(c)
+      // atualiza o contador na hora, sem esperar o servidor
+      setPublico((p) => {
+        const antes = minha?.id === c.id ? minha : null
+        const delta = totalPessoas(c) - (antes ? totalPessoas(antes) : 0)
+        const deltaConf = (c.status === 'sim' ? 1 : 0) - (antes?.status === 'sim' ? 1 : 0)
+        return { ...p, pessoas: Math.max(0, p.pessoas + delta), confirmacoes: Math.max(0, p.confirmacoes + deltaConf) }
+      })
+      gravarMinhaConfirmacao(c)
+      setMinha(c)
+    },
+    [minha],
+  )
 
-  const resumo = useMemo(() => {
-    let pessoas = 0
-    let sim = 0
-    let nao = 0
-    for (const c of CONVIDADOS) {
-      const r = respostas[c.id]
-      if (!r) continue
-      if (r.status === 'sim') {
-        sim++
-        pessoas += r.pessoas || 1
-      } else nao++
+  const reservar = useCallback(async (r: Reserva) => {
+    try {
+      await salvarReserva(r)
+    } catch (err) {
+      void recarregar() // o item pode ter acabado: mostra o número certo
+      throw err
     }
-    return { pessoas, sim, nao, pendentes: CONVIDADOS.length - sim - nao }
-  }, [respostas])
+    setPublico((p) => ({ ...p, reservas: { ...p.reservas, [r.itemId]: (p.reservas[r.itemId] ?? 0) + r.qtd } }))
+    setMinhasReservas(gravarMinhaReserva(r.itemId, r.qtd))
+  }, [recarregar])
 
   const valor = useMemo(
-    () => ({ respostas, estado, recarregar, salvar, resumo }),
-    [respostas, estado, recarregar, salvar, resumo],
+    () => ({ publico, estado, recarregar, minha, confirmar, minhasReservas, reservar }),
+    [publico, estado, recarregar, minha, confirmar, minhasReservas, reservar],
   )
   return <Contexto.Provider value={valor}>{children}</Contexto.Provider>
 }

@@ -1,12 +1,11 @@
 import type { Ref } from 'react'
 import { motion, type Variants } from 'motion/react'
-import { ArrowDown, CircleCheck, Heart, PartyPopper } from 'lucide-react'
+import { CircleCheck, Gift, Heart, PartyPopper } from 'lucide-react'
 import { CONFIG } from '@/config'
 import { Button } from '@/components/ui/button'
 import { useContagem } from '@/hooks/use-browser'
 import { useRespostas } from '@/hooks/use-respostas'
 import { ANO, DIA, DIA_SEMANA, FIM, HORA_INICIO, INICIO, MES } from '@/lib/evento'
-import { primeiroNome, type Convidado } from '@/lib/guests'
 import { Brilho, Divisor, Laco, Ramo, TorreEiffel } from './ornaments'
 import { CartaoPapel, Digitos, EASE_OUT } from './primitives'
 
@@ -34,14 +33,12 @@ const nome: Variants = {
 
 type Props = {
   pronto: boolean
-  convidado?: Convidado
   onConfirmar: () => void
   ctaRef: Ref<HTMLDivElement>
 }
 
-export function Hero({ pronto, convidado, onConfirmar, ctaRef }: Props) {
-  const { respostas } = useRespostas()
-  const resposta = convidado ? respostas[convidado.id] : undefined
+export function Hero({ pronto, onConfirmar, ctaRef }: Props) {
+  const { minha } = useRespostas()
 
   return (
     <section aria-labelledby="titulo-convite" className="relative px-4 pt-16 pb-10 sm:pt-24 sm:pb-16">
@@ -51,15 +48,6 @@ export function Hero({ pronto, convidado, onConfirmar, ctaRef }: Props) {
             <Laco className="w-full drop-shadow-[0_8px_10px_rgb(158_66_89/0.25)]" />
           </motion.div>
 
-          {convidado && (
-            <motion.p
-              variants={item}
-              className="mx-auto mb-6 w-fit max-w-[19rem] rounded-2xl bg-blush-50 px-4 py-2 text-center text-sm leading-snug text-balance text-rose-ink ring-1 ring-blush-100"
-            >
-              <Heart className="mr-1.5 -mt-0.5 inline size-3.5 fill-current" aria-hidden="true" />
-              Convite especial para <strong className="font-medium">{convidado.nome}</strong>
-            </motion.p>
-          )}
 
           <motion.p variants={item} className="text-foil animate-foil text-[13px] font-medium tracking-[0.42em] uppercase">
             Chá de bebê
@@ -108,17 +96,13 @@ export function Hero({ pronto, convidado, onConfirmar, ctaRef }: Props) {
 
           <motion.div variants={item} ref={ctaRef} className="mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
             <Button size="lg" onClick={onConfirmar} className="sm:min-w-56">
-              {resposta?.status === 'sim' ? <CircleCheck /> : <Heart />}
-              {convidado
-                ? resposta
-                  ? 'Ver minha resposta'
-                  : `Responder, ${primeiroNome(convidado.nome)}`
-                : 'Confirmar presença'}
+              {minha?.status === 'sim' ? <CircleCheck /> : <Heart />}
+              {minha ? 'Ver minha resposta' : 'Confirmar presença'}
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <a href="#detalhes">
-                <ArrowDown />
-                Ver detalhes
+              <a href="#presentes">
+                <Gift />
+                Lista de presentes
               </a>
             </Button>
           </motion.div>

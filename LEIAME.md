@@ -1,7 +1,8 @@
 # Bonjour, Marianne — convite e confirmação de presença
 
 Site do chá de bebê: o convidado abre um envelope animado, vê o convite (com contagem
-regressiva, mapa e sugestão de mimo), procura o próprio nome na lista e confirma.
+regressiva e mapa), confirma a presença preenchendo nome, sobrenome, telefone, e-mail e
+dependentes, e pode reservar um item da lista de presentes para ninguém repetir.
 
 **Stack:** Vite + React + TypeScript + Tailwind CSS v4 + shadcn/ui + Motion.
 As respostas vão para uma **Planilha Google** (grátis, via Apps Script).
@@ -26,17 +27,17 @@ Tudo fica em **`src/config.ts`**:
 | `anfitrioes`, `mensagem` | Quem convida e o texto do convite |
 | `inicio`, `fim` | Data/hora com fuso (`-03:00` = Brasília) |
 | `local` | Nome, endereço e (opcional) link do Google Maps |
-| `presente` | Sugestão de mimo e as "etiquetas" (ex.: Fralda P, Fralda M) |
+| `presente` | Texto curto do cartão "Sugestão de mimo" |
 | `confirmarAte` | Prazo para responder (`AAAA-MM-DD`) |
-| `whatsapp` | Seu WhatsApp, para quem não achar o nome |
-| `convidados` | Um item por convite. Use `pessoas: 3` para casal/família |
+| `whatsapp` | Seu WhatsApp, para dúvidas dos convidados |
 
-> O identificador de cada convidado vem do nome (ex.: `ana-paula-ribeiro`). Se você mudar o nome
-> de alguém que já respondeu, a resposta antiga deixa de aparecer no site (continua na planilha).
+A **lista de presentes** fica em **`src/data/presentes.ts`** (importada do site antigo):
+fraldas por tamanho e os itens do enxoval com categoria, quantidade (`qtd: 0` = livre) e link da loja.
+Não mude o `id` de um item depois que o site estiver no ar — as reservas são guardadas por ele.
 
-## 3. Receber as confirmações (Google Planilhas)
+## 3. Receber as confirmações e reservas (Google Planilhas)
 
-Sem esta etapa o site funciona em **modo demonstração** (cada resposta fica só no navegador de quem respondeu).
+Sem esta etapa o site funciona em **modo demonstração** (respostas e reservas ficam só no navegador de quem respondeu).
 
 1. Crie uma planilha em <https://sheets.new>.
 2. **Extensões → Apps Script**. Apague o conteúdo, cole o arquivo `apps-script/Codigo.gs` e salve.
@@ -45,21 +46,28 @@ Sem esta etapa o site funciona em **modo demonstração** (cada resposta fica s�
    - Quem pode acessar: **Qualquer pessoa**
 4. Autorize e copie a **URL do app da Web** (termina em `/exec`).
 5. Cole em `appsScriptUrl` no `src/config.ts`.
+6. Defina a senha do painel: **Configurações do projeto (⚙️) → Propriedades do script →
+   Adicionar** `SENHA_PAINEL` = a senha que quiser.
 
-As respostas aparecem na aba **Confirmações**: nome, resposta, nº de pessoas, recadinho e data.
-O site mostra publicamente só quem confirmou; os **recadinhos ficam visíveis apenas na planilha**.
+A planilha ganha duas abas:
+
+- **Confirmações** — nome, sobrenome, telefone, e-mail, resposta, dependentes, total de pessoas, recado e data.
+  Se a pessoa editar a resposta no mesmo aparelho, a linha é atualizada (não duplica).
+- **Presentes** — item, quantidade, quem vai dar e quando. Para cancelar uma reserva, apague a linha.
+
+O site público recebe **só números** (pessoas confirmadas e quantos de cada presente já foram reservados).
+Nomes, telefones e e-mails ficam na planilha e no painel, que pede a senha.
 
 > Mudou o `Codigo.gs` depois? **Implantar → Gerenciar implantações → Editar → Nova versão** (mantém a mesma URL).
 
-## 4. Enviar os convites
+## 4. Enviar os convites e acompanhar
 
-- **Painel dos anfitriões:** abra `seu-site/#painel`. Ali você vê o resumo (confirmados, pendentes…),
-  copia o **link pessoal** de cada convidado e envia direto pelo **WhatsApp** com uma mensagem pronta.
-- **Link pessoal** (`?para=ana-paula-ribeiro`): o envelope já cumprimenta a pessoa pelo nome
-  e o botão principal abre a resposta dela direto.
-- **Link geral:** serve para todos; cada um procura o próprio nome na lista.
-- Dica: `seu-site/#confirmar` pula o envelope e vai direto para a lista.
-- Quer mandar o WhatsApp direto para o número da pessoa? Adicione `telefone: '5511988887777'` no convidado.
+- **Link do convite:** é um só para todos — cada pessoa preenche os próprios dados.
+- **Painel dos anfitriões:** abra `seu-site/#painel` e entre com a `SENHA_PAINEL`. Ali você vê
+  pessoas confirmadas (com dependentes), quem não vai, contatos (WhatsApp/e-mail com um toque),
+  recados, presentes reservados e baixa tudo em CSV.
+- Dicas: `seu-site/#confirmar` pula o envelope e vai direto para o formulário;
+  `seu-site/#presentes` abre direto na lista de presentes.
 
 ## 5. Publicar
 
@@ -87,12 +95,14 @@ src/
     envelope-intro.tsx      envelope animado de abertura
     hero.tsx                convite, data e contagem regressiva
     details.tsx             quando / onde (mapa) / sugestão de mimo
-    rsvp-section.tsx        resumo, busca e lista de convidados
-    rsvp-sheet.tsx          gaveta (celular) / janela (desktop) de resposta
-    host-panel.tsx          painel dos anfitriões
+    rsvp-section.tsx        formulário de confirmação (dados + dependentes)
+    gifts-section.tsx       lista de presentes com categorias, busca e reserva
+    modal.tsx               janela (desktop) / gaveta (celular)
+    host-panel.tsx          painel dos anfitriões (com senha)
     ornaments.tsx           ilustrações SVG (laço, Torre Eiffel, ramos, lacre)
     ui/                     componentes shadcn/ui
-  lib/                      convidados, datas/agenda, armazenamento
+  data/presentes.ts         ← lista de presentes
+  lib/                      textos/telefone, datas/agenda, armazenamento
 apps-script/Codigo.gs       backend da planilha
 ```
 

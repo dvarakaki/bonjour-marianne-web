@@ -1,5 +1,5 @@
 import { CONFIG } from '@/config'
-import { slug } from '@/lib/guests'
+import { slug } from '@/lib/texto'
 
 export const INICIO = new Date(CONFIG.inicio)
 export const FIM = new Date(CONFIG.fim)
@@ -44,7 +44,6 @@ export const MAPS_EMBED = `https://maps.google.com/maps?q=${enc(CONFIG.local.end
 
 /** Link base do convite (sem parâmetros) */
 export const linkConvite = () => `${location.origin}${location.pathname}`
-export const linkPessoal = (id: string) => `${linkConvite()}?para=${id}`
 
 export const whatsLink = (texto: string, telefone?: string) =>
   `https://wa.me/${telefone ?? ''}?text=${enc(texto)}`
@@ -101,10 +100,9 @@ export function baixarIcs() {
   setTimeout(() => URL.revokeObjectURL(url), 2000)
 }
 
-export function mensagemConvite(nome: string | null, link: string) {
-  const saudacao = nome ? `Olá, ${nome}! 💕` : 'Olá! 💕'
+export function mensagemConvite(link: string) {
   return [
-    saudacao,
+    'Olá! 💕',
     `Com muito carinho, convidamos você para o chá de bebê da ${CONFIG.bebe}.`,
     '',
     `🗓️ ${DATA_EXTENSO} · ${HORARIO}`,

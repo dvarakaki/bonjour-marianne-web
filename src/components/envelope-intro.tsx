@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, useAnimate, useReducedMotion } from 'motion/react'
 import { CONFIG } from '@/config'
-import { primeiroNome, type Convidado } from '@/lib/guests'
 import { DATA_CURTA } from '@/lib/evento'
 import { Lacre } from './ornaments'
 
@@ -9,7 +8,7 @@ const BOLSO_LATERAIS = 'polygon(0 0, 50% 54%, 100% 0, 100% 100%, 0 100%)'
 const BOLSO_FUNDO = 'polygon(0 100%, 50% 47%, 100% 100%)'
 const ABA = 'polygon(0 0, 100% 0, 50% 100%)'
 
-export function EnvelopeIntro({ convidado, onAberto }: { convidado?: Convidado; onAberto: () => void }) {
+export function EnvelopeIntro({ onAberto }: { onAberto: () => void }) {
   const [escopo, animar] = useAnimate()
   const [abrindo, setAbrindo] = useState(false)
   const reduzir = useReducedMotion()
@@ -57,7 +56,7 @@ export function EnvelopeIntro({ convidado, onAberto }: { convidado?: Convidado; 
       <div data-texto className="relative text-center">
         <p className="text-foil text-xs font-medium tracking-[0.42em] uppercase">Chá de bebê</p>
         <p className="mt-3 font-serif text-[28px] leading-tight text-foreground italic sm:text-4xl">
-          {convidado ? `${primeiroNome(convidado.nome)}, você recebeu` : 'Você recebeu'}
+          Você recebeu
           <br />
           um convite especial
         </p>

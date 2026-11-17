@@ -1,7 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { animate, AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { Check } from 'lucide-react'
-import type { Convidado } from '@/lib/guests'
+import { hash, iniciais } from '@/lib/texto'
 import type { Status } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
@@ -89,12 +89,12 @@ const TONS = [
 ]
 
 export function Avatar({
-  convidado,
+  nome,
   status,
   tamanho = 'md',
   className,
 }: {
-  convidado: Convidado
+  nome: string
   status?: Status
   tamanho?: 'md' | 'lg'
   className?: string
@@ -105,11 +105,11 @@ export function Avatar({
       className={cn(
         'relative grid shrink-0 place-items-center rounded-full font-serif font-semibold',
         tamanho === 'lg' ? 'size-16 text-[26px]' : 'size-11 text-[17px]',
-        TONS[convidado.tom % TONS.length],
+        TONS[hash(nome) % TONS.length],
         className,
       )}
     >
-      {convidado.iniciais}
+      {iniciais(nome)}
       {status === 'sim' && (
         <span className="absolute -right-0.5 -bottom-0.5 grid size-[18px] place-items-center rounded-full bg-success text-white ring-2 ring-card">
           <Check className="size-3" strokeWidth={3} />

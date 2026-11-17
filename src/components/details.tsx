@@ -1,9 +1,10 @@
 import type { ComponentType, ReactNode } from 'react'
-import { CalendarHeart, CalendarPlus, Copy, Download, Gift, MapPin, Navigation } from 'lucide-react'
+import { ArrowRight, CalendarHeart, CalendarPlus, Copy, Download, Gift, MapPin, Navigation } from 'lucide-react'
 import { toast } from 'sonner'
 import { CONFIG } from '@/config'
 import { Button } from '@/components/ui/button'
 import { baixarIcs, DATA_EXTENSO, googleAgendaUrl, HORARIO, MAPS_EMBED, MAPS_URL, WAZE_URL } from '@/lib/evento'
+import { FRALDAS, PRESENTES } from '@/data/presentes'
 import { cn } from '@/lib/utils'
 import { Revelar, TituloSecao } from './primitives'
 
@@ -112,12 +113,17 @@ export function Detalhes() {
         <CartaoInfo icone={Gift} titulo="Sugestão de mimo" atraso={0.12}>
           <p className="font-serif text-[24px] leading-snug">{CONFIG.presente.texto}</p>
           <ul className="mt-5 flex flex-wrap gap-2">
-            {CONFIG.presente.itens.map((i) => (
-              <li key={i} className="rounded-full bg-blush-50 px-3.5 py-1.5 text-sm text-rose-ink ring-1 ring-blush-100">
-                {i}
+            {FRALDAS.map((f) => (
+              <li key={f.id} className="rounded-full bg-blush-50 px-3.5 py-1.5 text-sm text-rose-ink ring-1 ring-blush-100">
+                {f.rotulo}
               </li>
             ))}
           </ul>
+          <Button asChild className="mt-6 w-full sm:w-auto">
+            <a href="#presentes">
+              Ver as {PRESENTES.length} sugestões <ArrowRight />
+            </a>
+          </Button>
         </CartaoInfo>
       </div>
     </section>
