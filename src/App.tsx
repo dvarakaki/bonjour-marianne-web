@@ -1,10 +1,12 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence } from 'motion/react'
+import { BotaoMusica } from '@/components/botao-musica'
 import { BotaoFlutuante, Rodape } from '@/components/chrome'
 import { Detalhes } from '@/components/details'
 import { EnvelopeIntro } from '@/components/envelope-intro'
 import { SecaoPresentes } from '@/components/gifts-section'
 import { Hero } from '@/components/hero'
+import { Revoada } from '@/components/jardim'
 import { Fundo } from '@/components/primitives'
 import { SecaoConfirmacao } from '@/components/rsvp-section'
 import { useHash } from '@/hooks/use-browser'
@@ -77,6 +79,9 @@ function Convite() {
         <SecaoPresentes />
         <Rodape />
       </main>
+
+      <Revoada visivel={!intro} />
+      <BotaoMusica escondido={intro} />
 
       <BotaoFlutuante
         alvoHero={heroCta}

@@ -1,5 +1,5 @@
 import { useEffect, useState, type RefObject } from 'react'
-import { AnimatePresence, motion, useInView } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 import { Heart } from 'lucide-react'
 import { CONFIG } from '@/config'
 import { Button } from '@/components/ui/button'
@@ -21,9 +21,10 @@ export function BotaoFlutuante({
   rotulo: string
   onClick: () => void
 }) {
-  const passouDoConvite = usePassouDe(alvoHero)
-  const listaVisivel = useInView(alvoLista, { amount: 0.08 })
-  const mostrar = !escondido && passouDoConvite && !listaVisivel
+  // aparece entre o fim do convite e a chegada na confirmação; dali para baixo some (não cobre a lista de presentes)
+  const passouDoConvite = usePosicao(alvoHero, acimaDaTela)
+  const chegouNaLista = usePosicao(alvoLista, jaApareceu)
+  const mostrar = !escondido && passouDoConvite && !chegouNaLista
 
   return (
     <AnimatePresence>
@@ -45,15 +46,18 @@ export function BotaoFlutuante({
   )
 }
 
-/** true quando o elemento já ficou acima da tela (a pessoa rolou além dele) */
-function usePassouDe(alvo: RefObject<HTMLElement | null>) {
+const acimaDaTela = (r: DOMRect) => r.bottom < 0
+const jaApareceu = (r: DOMRect) => r.top < innerHeight * 0.92
+
+/** Reavalia `teste` (função estável) com a posição do elemento a cada rolagem/redimensionamento */
+function usePosicao(alvo: RefObject<HTMLElement | null>, teste: (r: DOMRect) => boolean) {
   const [passou, setPassou] = useState(false)
   useEffect(() => {
     let quadro = 0
     const medir = () => {
       quadro = 0
       const el = alvo.current
-      if (el) setPassou(el.getBoundingClientRect().bottom < 0)
+      if (el) setPassou(teste(el.getBoundingClientRect()))
     }
     const agendar = () => {
       if (!quadro) quadro = requestAnimationFrame(medir)
@@ -66,7 +70,7 @@ function usePassouDe(alvo: RefObject<HTMLElement | null>) {
       removeEventListener('resize', agendar)
       cancelAnimationFrame(quadro)
     }
-  }, [alvo])
+  }, [alvo, teste])
   return passou
 }
 

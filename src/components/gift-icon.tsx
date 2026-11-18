@@ -48,62 +48,72 @@ import { normalizar } from '@/lib/texto'
 import { cn } from '@/lib/utils'
 
 /* ------------------------------------------------------------------
-   Paleta: cada categoria tem um tom pastel suave (fundo, borda e tinta)
+   Fotos dos produtos: src/assets/presentes/<id>.webp (quadradas, 512px).
+   Item sem foto ganha uma ilustração com o ícone em dois tons.
    ------------------------------------------------------------------ */
-type Tom = { fundo: string; anel: string; tinta: string; chip: string }
+const FOTOS = import.meta.glob<string>('../assets/presentes/*.webp', { eager: true, import: 'default' })
+
+export function fotoDoItem(id: string): string | undefined {
+  return FOTOS[`../assets/presentes/${id}.webp`]
+}
+
+/* ------------------------------------------------------------------
+   Paleta: cada categoria tem um tom pastel (aquarela, tinta e pontinhos)
+   ------------------------------------------------------------------ */
+export type Tom = { fundo: string; tinta: string; ponto: string; chip: string }
 
 const TONS = {
   rosa: {
-    fundo: 'bg-[linear-gradient(145deg,#fff5f7_0%,#fbe1e7_100%)]',
-    anel: 'ring-[#f2cbd5]',
-    tinta: 'text-[#a8455d]',
-    chip: 'bg-[#f9e3e0] text-[#a8455d]',
+    fundo: 'bg-[radial-gradient(120%_90%_at_30%_15%,#fffafa_0%,#fbe4e8_55%,#f4d0d8_100%)]',
+    tinta: 'text-[#b04f66]',
+    ponto: '#e9b9c4',
+    chip: 'bg-[#fbe7ea] text-[#a8455d]',
   },
   pessego: {
-    fundo: 'bg-[linear-gradient(145deg,#fff7f1_0%,#fbe3d3_100%)]',
-    anel: 'ring-[#f2d2bd]',
-    tinta: 'text-[#a25a3c]',
+    fundo: 'bg-[radial-gradient(120%_90%_at_30%_15%,#fffbf7_0%,#fce8da_55%,#f6d4bd_100%)]',
+    tinta: 'text-[#b0643f]',
+    ponto: '#efc4a6',
     chip: 'bg-[#fcebdf] text-[#a25a3c]',
   },
   lavanda: {
-    fundo: 'bg-[linear-gradient(145deg,#faf7fd_0%,#ebe2f5_100%)]',
-    anel: 'ring-[#ddd0ee]',
-    tinta: 'text-[#6c5190]',
+    fundo: 'bg-[radial-gradient(120%_90%_at_30%_15%,#fdfbff_0%,#eee6f8_55%,#ddd0ef_100%)]',
+    tinta: 'text-[#7458a0]',
+    ponto: '#cfbfe6',
     chip: 'bg-[#efe7f6] text-[#6c5190]',
   },
   salvia: {
-    fundo: 'bg-[linear-gradient(145deg,#f6faf6_0%,#deece1_100%)]',
-    anel: 'ring-[#cde0d1]',
-    tinta: 'text-[#4b7455]',
+    fundo: 'bg-[radial-gradient(120%_90%_at_30%_15%,#fbfdfa_0%,#e4efe5_55%,#cfe2d3_100%)]',
+    tinta: 'text-[#4f7d5b]',
+    ponto: '#b9d3bf',
     chip: 'bg-[#e6f0e8] text-[#4b7455]',
   },
   dourado: {
-    fundo: 'bg-[linear-gradient(145deg,#fefaf1_0%,#f3e6c8_100%)]',
-    anel: 'ring-[#ead8b0]',
-    tinta: 'text-[#87672f]',
+    fundo: 'bg-[radial-gradient(120%_90%_at_30%_15%,#fffdf8_0%,#f6ebd2_55%,#ecdab3_100%)]',
+    tinta: 'text-[#94712f]',
+    ponto: '#e2cb9a',
     chip: 'bg-[#f6ecd9] text-[#87672f]',
   },
   ceu: {
-    fundo: 'bg-[linear-gradient(145deg,#f6fafd_0%,#dce9f3_100%)]',
-    anel: 'ring-[#cadced]',
-    tinta: 'text-[#4a6d89]',
+    fundo: 'bg-[radial-gradient(120%_90%_at_30%_15%,#fbfdff_0%,#e3eef7_55%,#cddff0_100%)]',
+    tinta: 'text-[#4d7598]',
+    ponto: '#b8cfe5',
     chip: 'bg-[#e6eff6] text-[#4a6d89]',
   },
 } satisfies Record<string, Tom>
 
-export const CATEGORIA_VISUAL: Record<Categoria, { Icone: LucideIcon; tom: Tom }> = {
-  Roupas: { Icone: Shirt, tom: TONS.rosa },
-  Acessórios: { Icone: Ribbon, tom: TONS.lavanda },
-  'Fraldas e troca': { Icone: Baby, tom: TONS.pessego },
-  Banho: { Icone: Bath, tom: TONS.ceu },
-  Higiene: { Icone: Droplets, tom: TONS.salvia },
-  Saúde: { Icone: HeartPulse, tom: TONS.rosa },
-  'Alimentação e amamentação': { Icone: Milk, tom: TONS.dourado },
-  Sono: { Icone: MoonStar, tom: TONS.lavanda },
-  Quarto: { Icone: Lamp, tom: TONS.pessego },
-  Passeio: { Icone: Footprints, tom: TONS.salvia },
-  Maternidade: { Icone: Luggage, tom: TONS.dourado },
-  'Brinquedos e livros': { Icone: Blocks, tom: TONS.ceu },
+export const CATEGORIA_VISUAL: Record<Categoria, { Icone: LucideIcon; tom: Tom; curto: string }> = {
+  Roupas: { Icone: Shirt, tom: TONS.rosa, curto: 'Roupas' },
+  Acessórios: { Icone: Ribbon, tom: TONS.lavanda, curto: 'Acessórios' },
+  'Fraldas e troca': { Icone: Baby, tom: TONS.pessego, curto: 'Troca' },
+  Banho: { Icone: Bath, tom: TONS.ceu, curto: 'Banho' },
+  Higiene: { Icone: Droplets, tom: TONS.salvia, curto: 'Higiene' },
+  Saúde: { Icone: HeartPulse, tom: TONS.rosa, curto: 'Saúde' },
+  'Alimentação e amamentação': { Icone: Milk, tom: TONS.dourado, curto: 'Alimentação' },
+  Sono: { Icone: MoonStar, tom: TONS.lavanda, curto: 'Sono' },
+  Quarto: { Icone: Lamp, tom: TONS.pessego, curto: 'Quarto' },
+  Passeio: { Icone: Footprints, tom: TONS.salvia, curto: 'Passeio' },
+  Maternidade: { Icone: Luggage, tom: TONS.dourado, curto: 'Maternidade' },
+  'Brinquedos e livros': { Icone: Blocks, tom: TONS.ceu, curto: 'Brinquedos' },
 }
 
 export const TOM_FRALDAS = TONS.pessego
@@ -161,46 +171,84 @@ export function iconeDoItem(nome: string, cat?: Categoria): LucideIcon {
 }
 
 /* ------------------------------------------------------------------
-   Selo do ícone
+   Miniatura: foto do produto ou ilustração em aquarela com ícone duotone.
+   Ocupa 100% da caixa que a envolve (o tamanho vem de fora).
    ------------------------------------------------------------------ */
-const TAMANHOS = {
-  sm: { caixa: 'size-9 rounded-[12px]', icone: 'size-[18px]' },
-  md: { caixa: 'size-14 rounded-[18px]', icone: 'size-[26px]' },
-  lg: { caixa: 'size-20 rounded-[26px]', icone: 'size-9' },
-}
-
-export function SeloIcone({
+export function Miniatura({
+  foto,
   Icone,
   tom,
-  tamanho = 'md',
   apagado,
-  animado,
+  zoom,
+  carregarJa,
   className,
 }: {
+  foto?: string
   Icone: LucideIcon
   tom: Tom
-  tamanho?: keyof typeof TAMANHOS
+  /** item já garantido: dessaturado */
   apagado?: boolean
-  animado?: boolean
+  /** aproxima a foto quando o cartão (group) recebe hover */
+  zoom?: boolean
+  /** imagem acima da dobra / dentro de janela: sem lazy */
+  carregarJa?: boolean
   className?: string
 }) {
-  const t = TAMANHOS[tamanho]
   return (
-    <span
+    <div
       aria-hidden="true"
       className={cn(
-        'relative grid shrink-0 place-items-center ring-1 ring-inset transition-transform duration-300',
-        t.caixa,
-        apagado ? 'bg-muted text-muted-foreground/70 ring-border' : [tom.fundo, tom.anel, tom.tinta],
-        animado && !apagado && 'group-hover:-rotate-3 group-hover:scale-105',
+        'relative isolate overflow-hidden bg-muted',
+        apagado && 'opacity-60 grayscale-[0.85]',
+        'transition-[filter,opacity] duration-300',
         className,
       )}
     >
-      {/* brilho suave no canto, como papel acetinado */}
-      {!apagado && (
-        <span className="pointer-events-none absolute inset-x-[18%] top-[9%] h-[28%] rounded-full bg-white/55 blur-[3px]" />
+      {foto ? (
+        <>
+          <img
+            src={foto}
+            alt=""
+            width={512}
+            height={512}
+            loading={carregarJa ? 'eager' : 'lazy'}
+            decoding="async"
+            className={cn(
+              'size-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
+              zoom && 'group-hover:scale-[1.06]',
+            )}
+          />
+          {/* vinheta suave para integrar a foto ao papel */}
+          <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_0_1px_rgb(79_58_49/0.06),inset_0_-30px_40px_-30px_rgb(79_58_49/0.18)]" />
+        </>
+      ) : (
+        <div className={cn('grid size-full place-items-center', tom.fundo, tom.tinta)}>
+          <div
+            className="absolute inset-0 opacity-70 [mask-image:radial-gradient(closest-side,transparent_35%,#000)]"
+            style={{ backgroundImage: `radial-gradient(${tom.ponto} 1.1px, transparent 1.7px)`, backgroundSize: '11px 11px' }}
+          />
+          <div className="absolute top-[12%] left-[14%] h-[30%] w-[44%] rounded-full bg-white/60 blur-xl" />
+          <Icone
+            className={cn(
+              'relative h-auto w-[44%] drop-shadow-[0_6px_10px_rgb(120_70_60/0.12)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]',
+              zoom && 'group-hover:scale-110 group-hover:-rotate-6',
+            )}
+            strokeWidth={1.1}
+            fill="currentColor"
+            fillOpacity={0.16}
+          />
+        </div>
       )}
-      <Icone className={cn('relative', t.icone)} strokeWidth={1.6} />
+    </div>
+  )
+}
+
+/** Selinho redondo com o ícone da categoria (chips e títulos) */
+export function SeloCategoria({ cat, className }: { cat: Categoria; className?: string }) {
+  const { Icone, tom } = CATEGORIA_VISUAL[cat]
+  return (
+    <span aria-hidden="true" className={cn('grid size-9 shrink-0 place-items-center rounded-full', tom.chip, className)}>
+      <Icone className="size-[18px]" strokeWidth={1.6} fill="currentColor" fillOpacity={0.14} />
     </span>
   )
 }

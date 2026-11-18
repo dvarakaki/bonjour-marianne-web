@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer'
 import { useMediaQuery } from '@/hooks/use-browser'
+import { cn } from '@/lib/utils'
 
 export type TextoComp = ComponentType<{ className?: string; children?: ReactNode }>
 
@@ -13,10 +14,13 @@ export type TextoComp = ComponentType<{ className?: string; children?: ReactNode
 export function ModalResponsivo({
   aberto,
   onFechar,
+  semRespiro,
   children,
 }: {
   aberto: boolean
   onFechar: () => void
+  /** sem padding interno: o conteúdo começa colado nas bordas (ex.: foto no topo) */
+  semRespiro?: boolean
   children: (t: { Titulo: TextoComp; Descricao: TextoComp }) => ReactNode
 }) {
   const desktop = useMediaQuery('(min-width: 768px)')
@@ -25,12 +29,15 @@ export function ModalResponsivo({
   }
 
   const corpo = (Titulo: TextoComp, Descricao: TextoComp) => (
-    <div className="relative px-5 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-8 sm:pt-8 sm:pb-8">
+    <div className={cn('relative', !semRespiro && 'px-5 pt-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-8 sm:pt-8 sm:pb-8')}>
       <button
         type="button"
         onClick={onFechar}
         aria-label="Fechar"
-        className="absolute top-2 right-2 z-10 grid size-11 cursor-pointer place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:top-4 sm:right-4"
+        className={cn(
+          'absolute top-2 right-2 z-10 grid size-11 cursor-pointer place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:top-4 sm:right-4',
+          semRespiro && 'top-3 right-3 size-10 bg-card/85 text-foreground shadow-soft backdrop-blur-md hover:bg-card sm:top-3 sm:right-3',
+        )}
       >
         <X className="size-5" />
       </button>

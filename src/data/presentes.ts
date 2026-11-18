@@ -4,7 +4,7 @@
    - qtd: quantas unidades a família gostaria (0 = quantidade livre)
    - link: loja de referência (opcional)
    - preco: valor unitário em R$ (coletado nas lojas em 16/11/2026); aprox: true = estimado
-   - o ícone de cada item é escolhido pelo nome (src/components/gift-icon.tsx)
+   - foto: src/assets/presentes/<id>.webp (quadrada); sem foto, um ícone é escolhido pelo nome (src/components/gift-icon.tsx)
    - id: não mude depois que o site estiver no ar (as reservas usam o id)
    ===================================================================== */
 

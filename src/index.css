@@ -139,7 +139,7 @@
   }
   body {
     @apply min-h-dvh bg-background font-sans text-foreground antialiased;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   h1, h2, h3 { text-wrap: balance; }
   .font-serif { font-variant-numeric: lining-nums; }
@@ -157,11 +157,78 @@
   animation: shimmer 1.6s linear infinite;
 }
 
-/* Borboletas: voo suave de um lado para o outro */
-@keyframes borboleta-asas {
-  0%, 100% { transform: scaleX(1); }
-  50% { transform: scaleX(0.55); }
+/* =====================================================================
+   Borboletas (src/components/jardim.tsx)
+   Rodam mesmo com "reduzir movimento": são pequenas, lentas e decorativas.
+   ===================================================================== */
+.borboleta { perspective: 260px; }
+.borboleta .corpo-3d { transform-style: preserve-3d; transform: rotateX(38deg); }
+.borboleta .asa { transform-style: preserve-3d; will-change: transform; }
+.borboleta .asa-esq { transform-origin: 100% 50%; animation: asa-esq var(--bater, 1.5s) ease-in-out infinite; }
+.borboleta .asa-dir { transform-origin: 0% 50%; animation: asa-dir var(--bater, 1.5s) ease-in-out infinite; }
+
+/* bate, bate, plana */
+@keyframes asa-esq {
+  0%, 100% { transform: rotateY(8deg); }
+  9% { transform: rotateY(74deg); }
+  18% { transform: rotateY(10deg); }
+  27% { transform: rotateY(70deg); }
+  36% { transform: rotateY(12deg); }
+  62% { transform: rotateY(26deg); }
+  82% { transform: rotateY(6deg); }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .asas { animation: borboleta-asas 0.42s ease-in-out infinite; transform-origin: 50% 50%; }
+@keyframes asa-dir {
+  0%, 100% { transform: rotateY(-8deg); }
+  9% { transform: rotateY(-74deg); }
+  18% { transform: rotateY(-10deg); }
+  27% { transform: rotateY(-70deg); }
+  36% { transform: rotateY(-12deg); }
+  62% { transform: rotateY(-26deg); }
+  82% { transform: rotateY(-6deg); }
+}
+
+/* sobe e desce um pouquinho a cada batida */
+.flutuar { animation: flutuar 1.5s ease-in-out infinite; }
+.flutuar-alto { animation: flutuar-alto 3.4s ease-in-out infinite; }
+@keyframes flutuar { 0%, 100% { translate: 0 0; } 25% { translate: 0 -5px; } }
+@keyframes flutuar-alto {
+  0%, 100% { translate: 0 0; }
+  25% { translate: 0 -38px; }
+  50% { translate: 0 6px; }
+  75% { translate: 0 -24px; }
+}
+
+/* passeio em curva perto do lugar de origem, inclinando nas curvas */
+.voo-a, .voo-b { animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+.voo-a { animation-name: voo-a; }
+.voo-b { animation-name: voo-b; }
+@keyframes voo-a {
+  0%, 100% { transform: translate(0, 0) rotate(var(--giro)); }
+  20% { transform: translate(calc(var(--ax) * .55), calc(var(--ay) * -1)) rotate(calc(var(--giro) + 14deg)); }
+  42% { transform: translate(var(--ax), calc(var(--ay) * -.35)) rotate(calc(var(--giro) - 6deg)); }
+  64% { transform: translate(calc(var(--ax) * .45), calc(var(--ay) * .4)) rotate(calc(var(--giro) - 18deg)); }
+  82% { transform: translate(calc(var(--ax) * -.25), calc(var(--ay) * -.2)) rotate(calc(var(--giro) + 6deg)); }
+}
+@keyframes voo-b {
+  0%, 100% { transform: translate(0, 0) rotate(var(--giro)); }
+  25% { transform: translate(calc(var(--ax) * -.3), calc(var(--ay) * -.8)) rotate(calc(var(--giro) - 12deg)); }
+  50% { transform: translate(calc(var(--ax) * .7), calc(var(--ay) * -1)) rotate(calc(var(--giro) + 10deg)); }
+  75% { transform: translate(var(--ax), calc(var(--ay) * .3)) rotate(calc(var(--giro) + 18deg)); }
+}
+
+/* revoada: atravessa a tela e espera fora dela até a próxima vez */
+.atravessar, .atravessar-volta { animation-timing-function: linear; animation-iteration-count: infinite; animation-fill-mode: both; }
+.atravessar { animation-name: atravessar; }
+.atravessar-volta { animation-name: atravessar-volta; }
+@keyframes atravessar {
+  0% { transform: translate(-80px, 0); opacity: 0; }
+  2% { opacity: 1; }
+  45% { transform: translate(calc(100vw + 80px), -60px); opacity: 1; }
+  46%, 100% { transform: translate(calc(100vw + 80px), -60px); opacity: 0; }
+}
+@keyframes atravessar-volta {
+  0% { transform: translate(calc(100vw + 80px), 0); opacity: 0; }
+  2% { opacity: 1; }
+  45% { transform: translate(-80px, -40px); opacity: 1; }
+  46%, 100% { transform: translate(-80px, -40px); opacity: 0; }
 }

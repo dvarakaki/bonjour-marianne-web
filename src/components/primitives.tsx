@@ -4,6 +4,7 @@ import { Check } from 'lucide-react'
 import { hash, iniciais } from '@/lib/texto'
 import type { Status } from '@/lib/store'
 import { cn } from '@/lib/utils'
+import { Borboleta, VOOS } from './jardim'
 
 export const EASE_OUT = [0.22, 1, 0.36, 1] as const
 
@@ -69,7 +70,8 @@ export function TituloSecao({
   subtitulo?: ReactNode
 }) {
   return (
-    <Revelar className="mx-auto mb-10 max-w-xl text-center sm:mb-12">
+    <Revelar className="relative mx-auto mb-10 max-w-xl text-center sm:mb-12">
+      <Borboleta voo={VOOS.secao[hash(id) % VOOS.secao.length]} />
       <p className="text-xs font-medium tracking-[0.34em] text-gold-ink uppercase">{sobretitulo}</p>
       <h2 id={id} className="mt-3 font-serif text-[40px] leading-[1.05] font-medium text-foreground sm:text-5xl">
         {titulo}
