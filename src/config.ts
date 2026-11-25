@@ -36,7 +36,7 @@ export const CONFIG: Config = {
 
   // Data e hora com fuso (−03:00 = horário de Brasília)
   inicio: '2026-12-06T16:00:00-03:00',
-  fim: '2026-12-06T20:00:00-03:00',
+  fim: '2026-12-06T22:00:00-03:00',
   fusoHorario: 'America/Sao_Paulo',
 
   local: {
@@ -51,7 +51,7 @@ export const CONFIG: Config = {
   },
 
   // Prazo para responder (AAAA-MM-DD). Vazio = não mostra prazo.
-  confirmarAte: '2026-12-01',
+  confirmarAte: '2026-11-27',
 
   // WhatsApp dos anfitriões (só dígitos, com DDI + DDD) para dúvidas. Vazio = esconde.
   whatsapp: '5511963062840',
