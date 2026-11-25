@@ -403,8 +403,8 @@ function Formulario({
           >
             <Etapa
               numero={3}
-              titulo="Dependentes"
-              descricao="Filhos ou acompanhantes que vêm com você. Se vier sozinho(a), é só pular."
+              titulo="Acompanhantes"
+              descricao="Filhos, parceiro(a) ou quem mais vier com você. Se vier sozinho(a), é só pular."
             >
               <ul className="space-y-2.5">
                 <AnimatePresence initial={false}>
@@ -422,7 +422,7 @@ function Formulario({
                         {i + 1}
                       </span>
                       <label className="min-w-0 flex-1">
-                        <span className="sr-only">Nome do dependente {i + 1}</span>
+                        <span className="sr-only">Nome do acompanhante {i + 1}</span>
                         <Input
                           value={d.nome}
                           onChange={(e) => setDependentes((l) => l.map((x) => (x.chave === d.chave ? { ...x, nome: e.target.value } : x)))}
@@ -433,7 +433,7 @@ function Formulario({
                         />
                       </label>
                       <label className="w-[84px] shrink-0 sm:w-28">
-                        <span className="sr-only">Idade do dependente {i + 1} (opcional)</span>
+                        <span className="sr-only">Idade do acompanhante {i + 1} (opcional)</span>
                         <Input
                           value={d.idade}
                           onChange={(e) =>
@@ -448,7 +448,7 @@ function Formulario({
                         type="button"
                         variant="ghost"
                         size="icon"
-                        aria-label={`Remover ${d.nome.trim() || `dependente ${i + 1}`}`}
+                        aria-label={`Remover ${d.nome.trim() || `acompanhante ${i + 1}`}`}
                         onClick={() => setDependentes((l) => l.filter((x) => x.chave !== d.chave))}
                         className="shrink-0 hover:bg-card hover:text-destructive"
                       >
@@ -473,14 +473,14 @@ function Formulario({
                   )}
                 >
                   <Plus className="size-[18px]" aria-hidden="true" />
-                  {dependentes.length ? 'Adicionar outro dependente' : 'Adicionar dependente'}
+                  {dependentes.length ? 'Adicionar outro acompanhante' : 'Adicionar acompanhante'}
                 </button>
               )}
 
               <p className="mt-4 flex items-center gap-2 text-[15px] text-muted-foreground" aria-live="polite">
                 <Users className="size-4 text-primary" aria-hidden="true" />
                 Total: <strong className="font-semibold text-foreground">{plural(total, 'pessoa', 'pessoas')}</strong>
-                {total > 1 && <span>(você + {plural(total - 1, 'dependente', 'dependentes')})</span>}
+                {total > 1 && <span>(você + {plural(total - 1, 'acompanhante', 'acompanhantes')})</span>}
               </p>
             </Etapa>
           </motion.div>

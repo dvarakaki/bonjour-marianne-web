@@ -249,7 +249,7 @@ function Conteudo({ dados, onMudou }: { dados: DadosPainel; onMudou: () => void 
   )
 
   const cartoes = [
-    { rotulo: 'Pessoas confirmadas', valor: resumo.pessoas, extra: resumo.dependentes ? `incluindo ${plural(resumo.dependentes, 'dependente', 'dependentes')}` : undefined },
+    { rotulo: 'Pessoas confirmadas', valor: resumo.pessoas, extra: resumo.dependentes ? `incluindo ${plural(resumo.dependentes, 'acompanhante', 'acompanhantes')}` : undefined },
     { rotulo: 'Respostas “vou”', valor: resumo.sim },
     { rotulo: 'Não poderão ir', valor: resumo.nao },
     { rotulo: 'Presentes reservados', valor: resumo.presentes, extra: plural(reservas.length, 'reserva', 'reservas') },
@@ -368,7 +368,7 @@ function Conteudo({ dados, onMudou }: { dados: DadosPainel; onMudou: () => void 
                         {c.status === 'sim' ? `Vai · ${plural(totalPessoas(c), 'pessoa', 'pessoas')}` : 'Não poderá ir'}
                       </p>
                       {c.dependentes.length > 0 && (
-                        <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Dependentes">
+                        <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Acompanhantes">
                           {c.dependentes.map((d, i) => (
                             <li key={i} className="rounded-full bg-blush-50 px-2.5 py-0.5 text-[13px] text-rose-ink ring-1 ring-blush-100">
                               {d.nome}
@@ -457,7 +457,7 @@ function baixarCsv({ confirmacoes, reservas }: DadosPainel) {
   const q = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
   const L: string[] = []
   L.push(q('CONFIRMAÇÕES'))
-  L.push(['Nome', 'Sobrenome', 'Telefone', 'E-mail', 'Resposta', 'Total de pessoas', 'Dependentes', 'Recado', 'Atualizado em'].map(q).join(';'))
+  L.push(['Nome', 'Sobrenome', 'Telefone', 'E-mail', 'Resposta', 'Total de pessoas', 'Acompanhantes', 'Recado', 'Atualizado em'].map(q).join(';'))
   for (const c of confirmacoes) {
     L.push(
       [

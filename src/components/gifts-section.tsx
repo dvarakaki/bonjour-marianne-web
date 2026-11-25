@@ -23,7 +23,7 @@ import {
 import { CONFIG } from '@/config'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { CATEGORIAS, FRALDAS, NOTA_FRALDAS, PRESENTES, TEXTO_PRESENTES, type Categoria } from '@/data/presentes'
+import { CATEGORIAS, FRALDAS, NOTA_FRALDAS, PRESENTES, TEXTO_PRESENTES, type Categoria, type MarcaFralda } from '@/data/presentes'
 import { FOTOS_ILUSTRATIVAS } from '@/data/fotos-ilustrativas'
 import { useRespostas } from '@/hooks/use-respostas'
 import { ErroServidor, MODO_DEMO } from '@/lib/store'
@@ -51,6 +51,8 @@ type Item = {
   aprox?: boolean
   unidade: [string, string]
   cat?: Categoria
+  /** só nas fraldas: marcas que a família usa */
+  marcas?: MarcaFralda[]
 }
 
 /* ---------------- lojas ---------------- */
@@ -147,6 +149,7 @@ const ITENS_FRALDA: Item[] = FRALDAS.map((f) => ({
   Icone: Baby,
   tom: TOM_FRALDAS,
   unidade: ['pacote', 'pacotes'],
+  marcas: f.marcas,
 }))
 const CONTAGEM = new Map<Categoria, number>()
 for (const i of ITENS) CONTAGEM.set(i.cat, (CONTAGEM.get(i.cat) ?? 0) + 1)
@@ -924,6 +927,28 @@ function CartaoFralda({
       <p className="mt-1 text-xs text-muted-foreground">
         <Preco item={item} className="text-[15px]" /> o pacote
       </p>
+      {item.marcas && item.marcas.length > 0 && (
+        <ul className="mt-3 flex flex-wrap justify-center gap-1.5" aria-label={`Marcas para o tamanho ${tamanho}`}>
+          {item.marcas.map((m) => (
+            <li key={m.nome}>
+              <a
+                href={m.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`${m.nome} ${m.linha} ${tamanho} no Mercado Livre`}
+                className="inline-flex min-h-8 items-center gap-1 rounded-full bg-blush-50 px-2.5 text-[12.5px] font-medium text-rose-ink ring-1 ring-blush-100 transition-[background-color,box-shadow,transform] hover:-translate-y-px hover:bg-blush-100 hover:ring-blush-300 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+              >
+                {m.nome}
+                <ArrowUpRight className="size-3.5 opacity-70" aria-hidden="true" />
+                <span className="sr-only">
+                  {' '}
+                  {m.linha} tamanho {tamanho} no Mercado Livre (abre em nova aba)
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
       <div className="mt-auto w-full pt-4">
         <Button size="sm" variant={faltam ? 'soft' : 'ghost'} className="w-full" disabled={!faltam} onClick={onLevar}>
           {faltam ? (
@@ -1101,12 +1126,16 @@ function FluxoReserva({
     }
   }
 
-  const linkLoja = item.link && (
-    <Button variant="outline" className="w-full" asChild>
-      <a href={item.link} target="_blank" rel="noopener noreferrer">
-        Ver na {item.loja} <ArrowUpRight />
-      </a>
-    </Button>
+  const linkLoja = item.marcas?.length ? (
+    <BotoesMarcas marcas={item.marcas} tamanho={item.nome.split(' ').at(-1) ?? ''} />
+  ) : (
+    item.link && (
+      <Button variant="outline" className="w-full" asChild>
+        <a href={item.link} target="_blank" rel="noopener noreferrer">
+          Ver na {item.loja} <ArrowUpRight />
+        </a>
+      </Button>
+    )
   )
 
   if (feito) {
@@ -1128,14 +1157,15 @@ function FluxoReserva({
           . A {CONFIG.bebe} agradece! 💕
         </Descricao>
         <div className="mt-6 grid w-full gap-2">
-          {item.link && (
+          {item.marcas?.length ? linkLoja : null}
+          {!item.marcas?.length && item.link && (
             <Button asChild>
               <a href={item.link} target="_blank" rel="noopener noreferrer">
                 Ver na {item.loja} <ArrowUpRight />
               </a>
             </Button>
           )}
-          <Button variant={item.link ? 'ghost' : 'default'} onClick={onFechar}>
+          <Button variant={item.link || item.marcas?.length ? 'ghost' : 'default'} onClick={onFechar}>
             Voltar à lista
           </Button>
         </div>
@@ -1235,5 +1265,34 @@ function FluxoReserva({
         </div>
       </div>
     </form>
+  )
+}
+
+/* ---------------- marcas das fraldas (no modal) ---------------- */
+function BotoesMarcas({ marcas, tamanho }: { marcas: MarcaFralda[]; tamanho: string }) {
+  return (
+    <div className="pt-2">
+      <p className="mb-2 text-center text-[11px] font-semibold tracking-[0.2em] text-gold-ink uppercase">Marcas que usamos</p>
+      <div className="grid grid-cols-2 gap-2">
+        {marcas.map((m) => (
+          <a
+            key={m.nome}
+            href={m.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex min-h-14 items-center justify-between gap-2 rounded-2xl border border-border bg-card px-3.5 py-2 text-left transition-[border-color,background-color,transform] hover:-translate-y-px hover:border-blush-300 hover:bg-blush-50 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+          >
+            <span className="min-w-0">
+              <span className="block text-[15px] leading-tight font-semibold text-foreground">{m.nome}</span>
+              <span className="block truncate text-xs text-muted-foreground">
+                {m.linha} · {tamanho}
+              </span>
+            </span>
+            <ArrowUpRight className="size-4 shrink-0 text-rose-ink transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+            <span className="sr-only"> no Mercado Livre (abre em nova aba)</span>
+          </a>
+        ))}
+      </div>
+    </div>
   )
 }

@@ -11,7 +11,8 @@
 export const TEXTO_PRESENTES =
   'O maior presente é ter você pertinho da gente nesse momento tão especial! Os itens abaixo são apenas sugestões, sem nenhuma obrigação. Se, além das fraldinhas, você quiser mimar nossa pequena com algum presentinho, esta lista pode ajudar na escolha. Tudo foi pensado com muito carinho!'
 
-export const NOTA_FRALDAS = 'Para o tamanho RN, estamos usando Pampers Premium Care ou Huggies Natural Care.'
+export const NOTA_FRALDAS =
+  'Estamos usando Pampers Premium Care ou Huggies Natural Care. Toque na marca para ver as opções de cada tamanho.'
 
 export const CATEGORIAS = [
   'Roupas',
@@ -29,7 +30,24 @@ export const CATEGORIAS = [
 ] as const
 export type Categoria = (typeof CATEGORIAS)[number]
 
-export type Fralda = { id: string; tamanho: string; rotulo: string; qtd: number; /** preço aproximado do pacote */ preco: number }
+export type MarcaFralda = { nome: string; linha: string; link: string }
+export type Fralda = {
+  id: string
+  tamanho: string
+  rotulo: string
+  qtd: number
+  /** preço aproximado do pacote */
+  preco: number
+  /** marcas que a família usa, com link para a busca do tamanho */
+  marcas: MarcaFralda[]
+}
+
+/** Busca no Mercado Livre já filtrada pela linha e pelo tamanho (ex.: "fralda-pampers-premium-care-rn") */
+const buscaML = (termo: string) => `https://lista.mercadolivre.com.br/${termo}`
+const marcasDoTamanho = (t: string): MarcaFralda[] => [
+  { nome: 'Pampers', linha: 'Premium Care', link: buscaML(`fralda-pampers-premium-care-${t}`) },
+  { nome: 'Huggies', linha: 'Natural Care', link: buscaML(`fralda-huggies-natural-care-${t}`) },
+]
 export type Presente = {
   id: string
   nome: string
@@ -45,10 +63,10 @@ export type Presente = {
 }
 
 export const FRALDAS: Fralda[] = [
-  { id: 'fralda-rn', tamanho: 'RN', rotulo: 'Fraldas RN', qtd: 9, preco: 60 },
-  { id: 'fralda-p', tamanho: 'P', rotulo: 'Fraldas P', qtd: 12, preco: 65 },
-  { id: 'fralda-m', tamanho: 'M', rotulo: 'Fraldas M', qtd: 30, preco: 70 },
-  { id: 'fralda-g', tamanho: 'G', rotulo: 'Fraldas G', qtd: 45, preco: 75 },
+  { id: 'fralda-rn', tamanho: 'RN', rotulo: 'Fraldas RN', qtd: 9, preco: 60, marcas: marcasDoTamanho('rn') },
+  { id: 'fralda-p', tamanho: 'P', rotulo: 'Fraldas P', qtd: 12, preco: 65, marcas: marcasDoTamanho('p') },
+  { id: 'fralda-m', tamanho: 'M', rotulo: 'Fraldas M', qtd: 30, preco: 70, marcas: marcasDoTamanho('m') },
+  { id: 'fralda-g', tamanho: 'G', rotulo: 'Fraldas G', qtd: 45, preco: 75, marcas: marcasDoTamanho('g') },
 ]
 
 export const PRESENTES: Presente[] = [

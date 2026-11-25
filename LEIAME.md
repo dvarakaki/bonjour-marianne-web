@@ -2,7 +2,7 @@
 
 Site do chá de bebê (tema “Jardim Encantado”, com os ursinhos e as artes do convite): o convidado abre um envelope animado, vê o convite (com contagem
 regressiva e mapa), confirma a presença preenchendo nome, sobrenome, telefone, e-mail e
-dependentes, e pode reservar um item da lista de presentes para ninguém repetir.
+acompanhantes, e pode reservar um item da lista de presentes para ninguém repetir.
 
 **Stack:** Vite + React + TypeScript + Tailwind CSS v4 + shadcn/ui + Motion.
 As respostas e reservas vão para um banco **Firebase (Firestore)**, no plano gratuito.
@@ -46,7 +46,7 @@ As confirmações e as reservas ficam no **Firestore**, no projeto Firebase **`b
 | --- | --- | --- |
 | `presencas` | todos | só status e nº de pessoas (alimenta "X pessoas já confirmaram") |
 | `reservas` | todos | item e quantidade (alimenta "Faltam X de Y") |
-| `confirmacoes` | só o painel | nome, sobrenome, telefone, e-mail, dependentes, recado |
+| `confirmacoes` | só o painel | nome, sobrenome, telefone, e-mail, dependentes (acompanhantes), recado |
 | `reservasNomes` | só o painel | quem vai dar cada presente |
 
 As regras de segurança estão em **`firestore.rules`**. Mudou alguma coisa nelas? Publique com:
@@ -65,7 +65,7 @@ Para testar sem banco, troque `firebase` por `null` no `src/config.ts` (modo dem
 
 - **Link do convite:** é um só para todos — cada pessoa preenche os próprios dados.
 - **Painel dos anfitriões:** abra `seu-site/#painel` e entre com a senha do `.senha-painel.txt`. Ali você vê
-  pessoas confirmadas (com dependentes), quem não vai, contatos (WhatsApp/e-mail com um toque),
+  pessoas confirmadas (com acompanhantes), quem não vai, contatos (WhatsApp/e-mail com um toque),
   recados, presentes reservados e baixa tudo em CSV.
 - Dicas: `seu-site/#confirmar` pula o envelope e vai direto para o formulário;
   `seu-site/#presentes` abre direto na lista de presentes.
@@ -96,7 +96,7 @@ src/
     envelope-intro.tsx      envelope animado de abertura
     hero.tsx                convite, data e contagem regressiva
     details.tsx             quando / onde (mapa) / sugestão de mimo
-    rsvp-section.tsx        formulário de confirmação (dados + dependentes)
+    rsvp-section.tsx        formulário de confirmação (dados + acompanhantes)
     gifts-section.tsx       lista de presentes com categorias, busca e reserva
     modal.tsx               janela (desktop) / gaveta (celular)
     host-panel.tsx          painel dos anfitriões (com senha)
